@@ -1,0 +1,7 @@
+port_id,name,country,latitude,longitude,max_draft_m,max_dwt_t,max_loa_m,anchorage_radius_nm,cargo_types
+IN_PRD,Paradip,India,20.26,86.67,17.1,125000,290,15,"Coal;Iron Ore"
+IN_VIZ,Visakhapatnam,India,17.68,83.29,16.5,100000,280,15,"Coal;Limestone"
+IN_DHM,Dhamra,India,20.78,86.97,15.5,80000,250,12,"Coal"
+IN_KRI,Krishnapatnam,India,14.25,80.12,14.5,75000,230,12,"Coal"
+AU_NCL,Newcastle,Australia,-32.93,151.78,16.5,180000,300,20,"Coal"
+ID_TAB,Taboneo,Indonesia,-3.75,115.55,14.0,75000,250,15,"Coal"
