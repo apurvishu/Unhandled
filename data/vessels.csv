@@ -1,0 +1,7 @@
+mmsi,imo,vessel_name,vessel_type,dwt_t,draft_m,loa_m
+419001234,9876543,MV Ocean Star,Panamax,76000,13.8,225
+419001235,9876544,MV Eastern Wind,Supramax,58000,12.6,200
+419001236,9876545,MV Iron Titan,Capesize,175000,18.2,290
+419001237,9876546,MV Coastal Grace,Handysize,32000,10.1,180
+419001238,9876547,MV Blue Horizon,Panamax,72000,13.5,220
+419001239,9876548,MV Pacific Trader,Supramax,55000,12.2,195
