@@ -1,0 +1,17 @@
+[project]
+name = "optimization-engine"
+version = "0.1.0"
+description = "Maritime Optimization Engine — Intelligent vessel matching and charter optimization for bulk cargo procurement (SIH PS-SIH26006)"
+requires-python = ">=3.10"
+dependencies = [
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
