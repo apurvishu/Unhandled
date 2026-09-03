@@ -1,10 +1,10 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { APP_CONFIG } from '@/config/constants';
 
-// Create base Axios instance
+// Create base Axios instance (calls relative /api/v1 so Next.js proxy rewrite routes it or directly to backend)
 export const apiClient: AxiosInstance = axios.create({
-  baseURL: APP_CONFIG.apiBaseUrl,
-  timeout: 10000,
+  baseURL: typeof window !== 'undefined' ? '/api/v1' : APP_CONFIG.apiBaseUrl,
+  timeout: 8000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -56,15 +56,13 @@ apiClient.interceptors.response.use(
 
 /**
  * Smart fetch wrapper with seamless Demo Mode fallback.
- * If backend is reachable, returns real data.
- * If backend is unreachable (offline/404/network error), gracefully returns mockData
- * and marks it as demo data without breaking the UI.
+ * If backend is reachable, returns real data (unpacking StandardResponse if present).
+ * If backend is unreachable or manual demo mode is active, returns mock fallback.
  */
 export async function smartFetch<T>(
-  requestFn: () => Promise<AxiosResponse<T>>,
+  requestFn: () => Promise<AxiosResponse<any>>,
   mockFallback: T | (() => T)
 ): Promise<T> {
-  // Check if manual demo mode override is enabled
   const isDemoOverride = typeof window !== 'undefined' && localStorage.getItem('maritime_demo_mode') === 'true';
   if (isDemoOverride) {
     return typeof mockFallback === 'function' ? (mockFallback as () => T)() : mockFallback;
@@ -72,9 +70,12 @@ export async function smartFetch<T>(
 
   try {
     const response = await requestFn();
-    return response.data;
+    // Check if response is wrapped in StandardResponse { success: true, data: ... }
+    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+      return response.data.data as T;
+    }
+    return response.data as T;
   } catch (err) {
-    console.warn('[SmartFetch] Backend API unreachable or returned error, using high-fidelity fallback dataset:', err);
     return typeof mockFallback === 'function' ? (mockFallback as () => T)() : mockFallback;
   }
 }

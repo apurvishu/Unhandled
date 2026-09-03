@@ -10,56 +10,74 @@ import {
   Tooltip,
   CartesianGrid,
 } from 'recharts';
-import { CongestionPoint } from '@/types';
 
-export interface PortCongestionChartProps {
-  data: CongestionPoint[];
+interface PortCongestionChartProps {
+  data: any[];
   height?: number;
 }
 
 export const PortCongestionChart: React.FC<PortCongestionChartProps> = ({
   data,
-  height = 260,
+  height = 240,
 }) => {
+  const normalizedData = (data || []).map((d) => ({
+    date: d.date,
+    waitingHours: d.waitingTimeHours !== undefined ? d.waitingTimeHours : (d.waitingHours || 0),
+    vesselsInQueue: d.vesselsInQueue || 0,
+    level: d.congestionLevel || d.level || 'MEDIUM',
+  }));
+
   return (
-    <div className="w-full bg-slate-900/60 border border-slate-800 rounded-xl p-4">
-      <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
-        <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">
-            Average Waiting Time (Hours) Trend & 7-Day Forecast
-          </h4>
-          <p className="text-[11px] text-slate-400">Historical vs ML Expected Anchorage Delay</p>
-        </div>
-      </div>
+    <div className="w-full" style={{ height }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={normalizedData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <CartesianGrid stroke="#e4e4e7" strokeDasharray="2 2" vertical={false} />
 
-      <div style={{ width: '100%', height }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <defs>
-              <linearGradient id="waitingHoursGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
-                <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.0} />
-              </linearGradient>
-            </defs>
+          <XAxis
+            dataKey="date"
+            tick={{ fill: '#71717a', fontSize: 10, fontFamily: 'monospace' }}
+            tickLine={{ stroke: '#e4e4e7' }}
+            axisLine={{ stroke: '#d4d4d8' }}
+          />
 
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-            <XAxis dataKey="date" stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 10 }} tickLine={false} />
-            <YAxis stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 10 }} tickLine={false} unit="h" />
-            <Tooltip
-              contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '0.75rem', fontSize: '12px' }}
-              labelStyle={{ color: '#cbd5e1', fontWeight: 'bold' }}
-            />
-            <Area
-              type="monotone"
-              dataKey="waitingTimeHours"
-              stroke="#f59e0b"
-              strokeWidth={2.5}
-              fill="url(#waitingHoursGrad)"
-              name="Waiting Time (Hours)"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
+          <YAxis
+            tick={{ fill: '#71717a', fontSize: 10, fontFamily: 'monospace' }}
+            tickLine={{ stroke: '#e4e4e7' }}
+            axisLine={{ stroke: '#d4d4d8' }}
+            tickFormatter={(val) => `${val}h`}
+          />
+
+          <Tooltip
+            content={({ active, payload, label }) => {
+              if (active && payload && payload.length) {
+                const item = payload[0].payload;
+                return (
+                  <div className="bg-white border border-zinc-300 rounded p-2.5 text-xs font-mono shadow-md">
+                    <p className="font-bold text-zinc-950 border-b border-zinc-100 pb-1 mb-1">{label}</p>
+                    <p className="text-zinc-800">
+                      Average Anchorage Wait: <strong>{item.waitingHours} Hours</strong>
+                    </p>
+                    {item.vesselsInQueue > 0 && <p className="text-zinc-600">Queue: {item.vesselsInQueue} Vessels</p>}
+                    <p className="text-zinc-500 text-[10px] mt-1">Status: {item.level} Congestion</p>
+                  </div>
+                );
+              }
+              return null;
+            }}
+          />
+
+          <Area
+            type="monotone"
+            dataKey="waitingHours"
+            stroke="#18181b"
+            strokeWidth={1.5}
+            fill="#f4f4f5"
+            fillOpacity={0.8}
+            dot={{ r: 3, fill: '#18181b', strokeWidth: 0 }}
+            name="Anchorage Waiting (Hours)"
+          />
+        </AreaChart>
+      </ResponsiveContainer>
     </div>
   );
 };

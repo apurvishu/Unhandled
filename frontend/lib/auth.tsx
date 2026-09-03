@@ -10,7 +10,8 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   isDemoMode: boolean;
-  login: (email: string, role?: UserRole) => Promise<void>;
+  login: (email: string, passwordOrRole?: string | UserRole) => Promise<void>;
+  register: (name: string, email: string, password?: string, role?: UserRole, organization?: string) => Promise<void>;
   quickLogin: (role: UserRole) => void;
   logout: () => void;
   toggleDemoMode: (val?: boolean) => void;
@@ -66,8 +67,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, role: UserRole = 'PROCUREMENT_OFFICER') => {
+  const login = async (email: string, passwordOrRole: string | UserRole = 'PROCUREMENT_OFFICER') => {
     setIsLoading(true);
+    const role: UserRole = ['PROCUREMENT_OFFICER', 'SHIP_OWNER', 'PORT_OWNER', 'ADMIN'].includes(passwordOrRole as string)
+      ? (passwordOrRole as UserRole)
+      : 'PROCUREMENT_OFFICER';
+
     // Find demo user matching role or default
     const matchedUser = Object.values(DEMO_USERS).find((u) => u.email === email || u.role === role) || {
       id: 'usr-custom-' + Date.now(),
@@ -84,6 +89,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(false);
 
     const target = getDashboardPathForRole(matchedUser.role);
+    router.push(target);
+  };
+
+  const register = async (name: string, email: string, password?: string, role: UserRole = 'PROCUREMENT_OFFICER', organization?: string) => {
+    setIsLoading(true);
+    const newUser: User = {
+      id: 'usr-new-' + Date.now(),
+      name,
+      email,
+      role,
+      companyName: organization || 'Bulk Logistics Corp',
+      createdAt: new Date().toISOString(),
+    };
+
+    setUser(newUser);
+    localStorage.setItem('maritime_user', JSON.stringify(newUser));
+    localStorage.setItem('maritime_access_token', 'demo_jwt_access_token_' + Date.now());
+    setIsLoading(false);
+
+    const target = getDashboardPathForRole(role);
     router.push(target);
   };
 
@@ -118,6 +143,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!user,
         isDemoMode,
         login,
+        register,
         quickLogin,
         logout,
         toggleDemoMode,

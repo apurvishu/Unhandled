@@ -33,6 +33,13 @@ Thumbs.db
 # Jupyter
 .ipynb_checkpoints/
 
+# Frontend
+node_modules/
+.next/
+out/
+build/
+dist/
+
 # Test/cache
 .pytest_cache/
 .mypy_cache/

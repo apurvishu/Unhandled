@@ -39,3 +39,13 @@ export async function checkPortBathymetryCompatibility(
     }
   );
 }
+
+export async function getBerthsByPort(portId: string): Promise<any[]> {
+  return smartFetch<any[]>(
+    () => apiClient.get(`/ports/${portId}/berths`),
+    () => {
+      const port = DEMO_PORTS.find((p) => p.id === portId) || DEMO_PORTS[0];
+      return port.berths || [];
+    }
+  );
+}

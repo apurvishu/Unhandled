@@ -22,17 +22,17 @@ export default function DashboardLayout({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-500">
         <div className="flex items-center gap-3">
-          <div className="h-5 w-5 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm font-medium">Initializing Maritime Intelligence...</span>
+          <div className="h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm font-medium">Loading Maritime Intelligence Platform...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#080e1a]">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <TopBar />
       <div className="flex-1 flex w-full">
         <Sidebar />

@@ -4,108 +4,103 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
-import { UserRole } from '@/types';
-import { Ship, Lock, Mail, User as UserIcon, Building2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input, Select } from '@/components/ui/Input';
+import { UserRole } from '@/types';
 
 export default function RegisterPage() {
-  const { login, isLoading } = useAuth();
-  const [name, setName] = useState('Capt. Rajesh Sharma');
-  const [email, setEmail] = useState('procurement@steelcorp.com');
-  const [password, setPassword] = useState('password123');
-  const [confirmPassword, setConfirmPassword] = useState('password123');
-  const [companyName, setCompanyName] = useState('National Steel & Power Authority');
+  const router = useRouter();
+  const { register: registerUser, isLoading } = useAuth();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [role, setRole] = useState<UserRole>('PROCUREMENT_OFFICER');
+  const [organization, setOrganization] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login(email, role);
+    try {
+      await registerUser(name, email, password, role, organization);
+      router.push('/dashboard/procurement');
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Registration failed. Please try again.');
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-950 via-[#080e1a] to-slate-950 p-4">
-      <div className="max-w-lg w-full bg-slate-900/80 border border-slate-800 rounded-2xl p-8 shadow-2xl backdrop-blur-md">
-        <div className="text-center space-y-2 mb-6">
-          <div className="h-12 w-12 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center mx-auto shadow-lg shadow-sky-600/30">
-            <Ship className="h-7 w-7 text-white" />
+    <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white border border-zinc-200 rounded p-8 shadow-sm space-y-6">
+        <div className="space-y-1 text-center">
+          <div className="inline-flex h-8 w-8 rounded bg-black text-white font-mono font-bold text-xs items-center justify-center mb-2">
+            N
           </div>
-          <h2 className="text-2xl font-extrabold text-white tracking-tight">Create Organization Account</h2>
-          <p className="text-xs text-slate-400">SIH26006 Maritime Intelligence Network</p>
+          <h1 className="text-xl font-bold tracking-tight text-zinc-950">Register for NAVIQ</h1>
+          <p className="text-xs text-zinc-500">Enterprise Maritime Logistics Access</p>
         </div>
 
+        {error && (
+          <div className="p-3 bg-red-50 border border-red-300 rounded text-xs text-red-900 font-medium">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label="Full Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              leftIcon={<UserIcon className="h-4 w-4" />}
-              required
-            />
+          <Input
+            label="Full Name"
+            placeholder="Rajesh Varma"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
 
-            <Input
-              label="Work Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              leftIcon={<Mail className="h-4 w-4" />}
-              required
-            />
-          </div>
+          <Input
+            label="Email Address"
+            type="email"
+            placeholder="r.varma@steelauthority.in"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label="Company / Authority"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              leftIcon={<Building2 className="h-4 w-4" />}
-              required
-            />
+          <Input
+            label="Organization Name"
+            placeholder="National Steel & Mining Corp"
+            value={organization}
+            onChange={(e) => setOrganization(e.target.value)}
+            required
+          />
 
-            <Select
-              label="Organizational Role"
-              value={role}
-              onChange={(e) => setRole(e.target.value as UserRole)}
-              options={[
-                { value: 'PROCUREMENT_OFFICER', label: 'Procurement Officer' },
-                { value: 'SHIP_OWNER', label: 'Ship Owner / Carrier' },
-                { value: 'PORT_OWNER', label: 'Port Owner / Terminal' },
-                { value: 'ADMIN', label: 'System Administrator' },
-              ]}
-            />
-          </div>
+          <Select
+            label="Operational Role"
+            value={role}
+            onChange={(e) => setRole(e.target.value as UserRole)}
+            options={[
+              { value: 'PROCUREMENT_OFFICER', label: 'Procurement Officer' },
+              { value: 'SHIP_OWNER', label: 'Ship Owner / Carrier' },
+              { value: 'PORT_OWNER', label: 'Port Authority Terminal Operator' },
+              { value: 'ADMIN', label: 'Platform Administrator' },
+            ]}
+          />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              leftIcon={<Lock className="h-4 w-4" />}
-              required
-            />
+          <Input
+            label="Password"
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
 
-            <Input
-              label="Confirm Password"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              leftIcon={<Lock className="h-4 w-4" />}
-              required
-            />
-          </div>
-
-          <Button type="submit" variant="primary" size="md" className="w-full font-bold mt-2" isLoading={isLoading}>
-            <span>Register & Initialize Workspace</span>
-            <ArrowRight className="h-4 w-4" />
+          <Button type="submit" variant="primary" size="md" className="w-full" isLoading={isLoading}>
+            Create Account
           </Button>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-slate-800/80 text-center text-xs text-slate-400">
-          Already registered?{' '}
-          <Link href="/login" className="text-sky-400 hover:underline font-semibold">
-            Sign In
+        <div className="text-center text-xs text-zinc-500 pt-2 border-t border-zinc-200">
+          Already have an account?{' '}
+          <Link href="/login" className="font-semibold text-black hover:underline">
+            Sign in
           </Link>
         </div>
       </div>

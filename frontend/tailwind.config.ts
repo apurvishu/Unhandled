@@ -6,44 +6,55 @@ const config: Config = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        background: "#080e1a",
-        surface: {
-          DEFAULT: "#0f172a",
-          secondary: "#1e293b",
-          tertiary: "#334155",
-          highlight: "#1e3a8a",
-        },
-        maritime: {
-          primary: "#0284c7",
-          teal: "#06b6d4",
-          cyan: "#38bdf8",
-          deep: "#0c4a6e",
-          accent: "#3b82f6",
-        },
-        status: {
-          success: "#10b981",
-          warning: "#f59e0b",
-          danger: "#ef4444",
-          info: "#06b6d4",
-          purple: "#8b5cf6",
+        // Strict Black & White foundation + Slate/Zinc scale
+        black: "#000000",
+        white: "#ffffff",
+        accent: {
+          DEFAULT: "#ea580c", // Single disciplined functional accent: Precision International Orange
+          hover: "#c2410c",
+          muted: "#fff7ed",
+          border: "#fed7aa",
         },
       },
       fontFamily: {
-        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
-        mono: ["JetBrains Mono", "Menlo", "Monaco", "Courier New", "monospace"],
+        sans: [
+          "Inter",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "Helvetica Neue",
+          "sans-serif",
+        ],
+        mono: [
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "Monaco",
+          "Consolas",
+          "Liberation Mono",
+          "Courier New",
+          "monospace",
+        ],
+      },
+      borderRadius: {
+        DEFAULT: "4px",
+        sm: "2px",
+        md: "4px",
+        lg: "6px",
+        xl: "8px",
       },
       boxShadow: {
-        glow: "0 0 20px -5px rgba(14, 165, 233, 0.3)",
-        "glow-green": "0 0 20px -5px rgba(16, 185, 129, 0.3)",
-        "glow-amber": "0 0 20px -5px rgba(245, 158, 11, 0.3)",
-        "glow-red": "0 0 20px -5px rgba(239, 68, 68, 0.3)",
+        sm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        DEFAULT: "0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08)",
+        none: "none",
       },
     },
   },
   plugins: [],
 };
+
 export default config;

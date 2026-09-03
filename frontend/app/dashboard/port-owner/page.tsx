@@ -6,169 +6,135 @@ import { useQuery } from '@tanstack/react-query';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { KpiCard } from '@/components/dashboard/KpiCard';
 import { PortCongestionChart } from '@/components/charts/PortCongestionChart';
-import { AisVesselMap } from '@/components/maps/AisVesselMap';
 import { Button } from '@/components/ui/Button';
-import { getPortById } from '@/services/ports';
+import { BackButton } from '@/components/ui/BackButton';
+import { getPorts, getBerthsByPort } from '@/services/ports';
 import { getPortCongestion } from '@/services/congestion';
-import { getCongestionBadgeColor } from '@/lib/utils';
-import { 
-  Anchor, 
-  Clock, 
-  Ship, 
-  Layers, 
-  BarChart3, 
-  TrendingDown, 
-  AlertTriangle,
-  ArrowRight,
-  ShieldCheck
-} from 'lucide-react';
+import { formatDwt } from '@/lib/utils';
+import { Anchor, Clock, ArrowRight, ShieldCheck, Ship, Layers } from 'lucide-react';
 
-export default function PortOwnerDashboardPage() {
-  const { data: portData } = useQuery({
-    queryKey: ['port', 'port-paradip'],
-    queryFn: () => getPortById('port-paradip'),
+export default function PortOwnerDashboard() {
+  const { data: ports = [] } = useQuery({
+    queryKey: ['ports'],
+    queryFn: getPorts,
   });
 
-  const { data: congestionData } = useQuery({
+  const { data: berths = [] } = useQuery({
+    queryKey: ['berths', 'port-paradip'],
+    queryFn: () => getBerthsByPort('port-paradip'),
+  });
+
+  const { data: congestion } = useQuery({
     queryKey: ['portCongestion', 'port-paradip'],
     queryFn: () => getPortCongestion('port-paradip'),
   });
 
-  const berths = portData?.berths || [];
-  const occupiedBerths = berths.filter((b) => b.status === 'OCCUPIED').length;
+  const paradip = ports.find((p) => p.id === 'port-paradip') || ports[0];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
+    <div className="space-y-8">
+      <BackButton href="/" label="Back to Home" />
+
       <PageHeader
-        title="Paradip Port Authority Operations Center"
-        description="Monitor bulk terminal capacity, berth utilization, vessel queue, and AI port congestion predictions."
-        badge="Port: IN PRT (Paradip)"
-        badgeVariant="info"
+        title="Port Authority & Terminal Operations Control"
+        description="Monitor berth occupancy, mechanized unloader throughput, UKC bathymetry, and 7-day anchorage congestion."
+        badge="Paradip Port Terminal (IN PRT)"
+        badgeVariant="default"
       >
-        <Link href="/congestion/port-paradip">
+        <Link href="/congestion">
           <Button variant="primary" size="md">
-            <Clock className="h-4 w-4" />
-            <span>View Congestion Predictor</span>
-          </Button>
-        </Link>
-        <Link href="/ports">
-          <Button variant="secondary" size="md">
-            <Anchor className="h-4 w-4" />
-            <span>Manage Berths</span>
+            <span>Global Congestion Matrix</span>
           </Button>
         </Link>
       </PageHeader>
 
-      {/* KPI Section */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+      {/* 4 Essential Port KPIs */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
-          title="In-Port Vessels"
-          value={portData?.currentVesselsInPort || 12}
-          subtitle="At berths & anchorage"
-          icon={Ship}
-          variant="primary"
-        />
-
-        <KpiCard
-          title="Vessels in Queue"
-          value={portData?.vesselsInQueue || 7}
-          subtitle="Awaiting berthing"
-          icon={Layers}
-          variant="warning"
-        />
-
-        <KpiCard
-          title="Berth Occupancy"
-          value="84.5%"
-          subtitle={`${occupiedBerths}/${berths.length || 4} Berths Busy`}
+          title="Berth Utilization"
+          value={`${paradip?.berthUtilizationPercent || 78}%`}
+          subtitle="4 of 6 Mechanized Berths Busy"
           icon={Anchor}
-          variant="warning"
         />
 
         <KpiCard
-          title="Avg Waiting Time"
-          value="34.5h"
-          subtitle="Current anchorage wait"
+          title="Anchorage Queue"
+          value={`${paradip?.vesselsInQueue || 14} Vessels`}
+          subtitle="Waiting for pilotage"
+          icon={Ship}
+        />
+
+        <KpiCard
+          title="Avg Anchorage Waiting"
+          value={`${paradip?.averageWaitingTimeHours || 34.5}h`}
+          subtitle="Predicted to decline to 21h"
           icon={Clock}
-          change={{ value: '-13.5h', trend: 'DOWN', isPositive: true, label: 'improving' }}
-          variant="success"
+          change={{ value: '-13.5h (in 3 days)', trend: 'DOWN', isPositive: true }}
         />
 
         <KpiCard
-          title="Congestion Level"
-          value="HIGH"
-          subtitle="Easing to MEDIUM in 3d"
-          icon={AlertTriangle}
-          variant="warning"
-        />
-
-        <KpiCard
-          title="Channel Depth"
-          value="17.5m"
-          subtitle="Capesize compatible"
+          title="Max Channel Depth"
+          value={`${paradip?.channelMaxDepth || 17.5}m`}
+          subtitle="Accommodates up to Capesize"
           icon={ShieldCheck}
-          variant="success"
         />
       </div>
 
-      {/* BERTH OCCUPANCY STATUS BOARD */}
-      <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-          <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Anchor className="h-4 w-4 text-sky-400" />
-              <span>Live Berth Occupancy & Operational Schedule</span>
-            </h3>
-            <p className="text-xs text-slate-400 mt-0.5">Real-time status of mechanized coal & iron ore berths</p>
-          </div>
-          <span className="text-xs font-semibold px-2.5 py-1 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">
-            Channel UKC: 17.5m Depth
-          </span>
+      {/* Berth Occupancy Board */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-500 font-mono">
+            Terminal Berth Allocation & Operations Board
+          </h3>
+          <span className="text-xs font-mono text-zinc-500">{berths.length} Monitored Berths</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {berths.map((berth) => {
-            const isOccupied = berth.status === 'OCCUPIED';
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {berths.map((b) => {
+            const isOccupied = b.status === 'OCCUPIED';
 
             return (
               <div
-                key={berth.id}
-                className={`rounded-xl border p-4 text-xs space-y-2.5 transition ${
-                  isOccupied
-                    ? 'bg-slate-950/80 border-amber-500/40'
-                    : 'bg-slate-950/40 border-slate-800'
-                }`}
+                key={b.id}
+                className="bg-white border border-zinc-200 rounded p-4 space-y-3 shadow-sm"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-extrabold text-white text-sm">{berth.berthNumber}</span>
-                  <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${
-                      isOccupied
-                        ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
-                        : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                    }`}
-                  >
-                    {berth.status}
+                  <div>
+                    <h4 className="font-bold text-zinc-950 font-mono text-sm">{b.name}</h4>
+                    <span className="text-[10px] text-zinc-500 uppercase font-mono">{b.code}</span>
+                  </div>
+
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border ${
+                    isOccupied
+                      ? 'bg-amber-50 text-amber-900 border-amber-300'
+                      : 'bg-emerald-50 text-emerald-900 border-emerald-300'
+                  }`}>
+                    {b.status}
                   </span>
                 </div>
 
-                <p className="text-slate-300 font-medium text-[11px] truncate">{berth.name}</p>
-
-                {isOccupied ? (
-                  <div className="pt-2 border-t border-slate-800/80 space-y-1 text-slate-300">
-                    <p>
-                      Vessel: <strong className="text-sky-300">{berth.currentVesselName}</strong>
-                    </p>
-                    <p>
-                      Cargo: <strong className="text-slate-200">{berth.cargoQuantityMt?.toLocaleString()} MT {berth.cargoType}</strong>
-                    </p>
-                    <p className="text-[10px] text-slate-400">
-                      ETD: {berth.expectedDeparture?.split('T')[0]} 18:00 UTC
-                    </p>
+                <div className="space-y-1 text-xs font-mono pt-2 border-t border-zinc-100">
+                  <div className="flex justify-between text-zinc-600">
+                    <span className="font-sans">Max Draft:</span>
+                    <strong className="text-zinc-900">{b.maxDraftMeters}m</strong>
                   </div>
-                ) : (
-                  <div className="pt-2 border-t border-slate-800/80 text-emerald-400 text-[11px]">
-                    ✓ Available for Panamax / Capesize Berthing
+                  <div className="flex justify-between text-zinc-600">
+                    <span className="font-sans">Max DWT:</span>
+                    <span className="text-zinc-900">{formatDwt(b.maxDwt)}</span>
+                  </div>
+                  <div className="flex justify-between text-zinc-600">
+                    <span className="font-sans">Handling Rate:</span>
+                    <span className="text-zinc-900">{b.handlingRateMtPerHour} MT/h</span>
+                  </div>
+                </div>
+
+                {isOccupied && b.currentVesselName && (
+                  <div className="p-2.5 bg-zinc-50 border border-zinc-200 rounded text-xs space-y-0.5">
+                    <div className="flex items-center justify-between font-mono">
+                      <strong className="text-zinc-950">{b.currentVesselName}</strong>
+                      <span className="text-emerald-700 font-bold">{b.dischargeProgressPercent}%</span>
+                    </div>
+                    <p className="text-[11px] text-zinc-500 font-mono">Discharge ETD: {b.etdExpected?.split('T')[0]}</p>
                   </div>
                 )}
               </div>
@@ -177,36 +143,27 @@ export default function PortOwnerDashboardPage() {
         </div>
       </section>
 
-      {/* CONGESTION PREDICTION & MAP */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-              <Clock className="h-4 w-4 text-amber-400" />
-              <span>7-Day ML Congestion & Waiting Time Forecast</span>
-            </h3>
-            <Link href="/congestion/port-paradip" className="text-xs text-sky-400 hover:text-sky-300">
-              Details →
+      {/* 7-Day Congestion Forecast */}
+      {congestion && (
+        <section className="bg-white border border-zinc-200 rounded p-6 space-y-4 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-zinc-100">
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-950 font-mono">
+                Paradip Terminal 7-Day Congestion & Queue Forecast
+              </h3>
+              <p className="text-xs text-zinc-500">Spatial GNN model predicting anchorage wait progression</p>
+            </div>
+            <Link href="/congestion/port-paradip">
+              <Button variant="outline" size="sm">
+                <span>View Full Queue</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Button>
             </Link>
           </div>
-          {congestionData && (
-            <PortCongestionChart data={congestionData.timeSeries} height={300} />
-          )}
-        </section>
 
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-              <Ship className="h-4 w-4 text-sky-400" />
-              <span>Port Approaching Vessel Traffic Map</span>
-            </h3>
-            <Link href="/vessels" className="text-xs text-sky-400 hover:text-sky-300">
-              Full Map →
-            </Link>
-          </div>
-          <AisVesselMap height="360px" />
+          <PortCongestionChart data={congestion.timeSeries} height={260} />
         </section>
-      </div>
+      )}
     </div>
   );
 }

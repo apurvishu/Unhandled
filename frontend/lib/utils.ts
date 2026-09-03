@@ -54,18 +54,22 @@ export function formatDateTime(dateString: string): string {
   }
 }
 
+/**
+ * Functional status indicators with disciplined, high-contrast monochrome & functional accents.
+ * Never uses purple, violet, blue, or cyan.
+ */
 export function getCongestionBadgeColor(level: string): { bg: string; text: string; border: string } {
-  switch (level) {
+  switch (level?.toUpperCase()) {
     case 'LOW':
-      return { bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/30' };
+      return { bg: 'bg-emerald-50', text: 'text-emerald-800', border: 'border-emerald-300' };
     case 'MEDIUM':
-      return { bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/30' };
+      return { bg: 'bg-amber-50', text: 'text-amber-900', border: 'border-amber-300' };
     case 'HIGH':
-      return { bg: 'bg-orange-500/10', text: 'text-orange-400', border: 'border-orange-500/30' };
+      return { bg: 'bg-orange-50', text: 'text-orange-900', border: 'border-orange-300' };
     case 'CRITICAL':
-      return { bg: 'bg-rose-500/10', text: 'text-rose-400', border: 'border-rose-500/30' };
+      return { bg: 'bg-red-50', text: 'text-red-900', border: 'border-red-300' };
     default:
-      return { bg: 'bg-slate-500/10', text: 'text-slate-400', border: 'border-slate-500/30' };
+      return { bg: 'bg-zinc-100', text: 'text-zinc-800', border: 'border-zinc-300' };
   }
 }
 
@@ -74,24 +78,24 @@ export function getStatusBadgeColor(status: string): { bg: string; text: string;
     case 'Underway':
     case 'IN_PROGRESS':
     case 'CONTRACTED':
-      return { bg: 'bg-cyan-500/10', text: 'text-cyan-400', border: 'border-cyan-500/30' };
+      return { bg: 'bg-zinc-900', text: 'text-white', border: 'border-zinc-900' };
     case 'AVAILABLE':
     case 'OPEN':
     case 'COMPLETED':
     case 'SELECTED':
-      return { bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/30' };
+      return { bg: 'bg-emerald-50', text: 'text-emerald-800', border: 'border-emerald-300' };
     case 'OCCUPIED':
     case 'OFFERED':
     case 'NEGOTIATING':
     case 'MATCHING':
-      return { bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/30' };
+      return { bg: 'bg-amber-50', text: 'text-amber-900', border: 'border-amber-300' };
     case 'At Anchor':
     case 'Awaiting Berth':
-      return { bg: 'bg-indigo-500/10', text: 'text-indigo-400', border: 'border-indigo-500/30' };
+      return { bg: 'bg-zinc-100', text: 'text-zinc-900', border: 'border-zinc-300' };
     case 'CANCELLED':
     case 'MAINTENANCE':
-      return { bg: 'bg-rose-500/10', text: 'text-rose-400', border: 'border-rose-500/30' };
+      return { bg: 'bg-red-50', text: 'text-red-900', border: 'border-red-300' };
     default:
-      return { bg: 'bg-slate-500/10', text: 'text-slate-400', border: 'border-slate-500/30' };
+      return { bg: 'bg-zinc-100', text: 'text-zinc-800', border: 'border-zinc-200' };
   }
 }

@@ -4,8 +4,8 @@ import { AuthProvider } from '@/lib/auth';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
-  title: 'SIH26006 Maritime Freight & Chartering Intelligence',
-  description: 'AI-driven bulk cargo procurement, freight forecasting, vessel matching and port congestion prediction platform.',
+  title: 'NAVIQ — Maritime Freight & Chartering Intelligence',
+  description: 'AI-driven bulk cargo procurement, freight forecasting, vessel matching and port congestion prediction platform for SIH26006.',
 };
 
 export default function RootLayout({
@@ -14,8 +14,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="bg-[#080e1a] text-slate-100 min-h-screen">
+    <html lang="en">
+      <body className="bg-gray-50 text-gray-900 min-h-screen">
         <Providers>
           <AuthProvider>{children}</AuthProvider>
         </Providers>

@@ -10,12 +10,26 @@ export interface ForecastRequestPayload {
 }
 
 export async function getFreightForecast(
-  payload?: Partial<ForecastRequestPayload>
+  arg1?: Partial<ForecastRequestPayload> | string,
+  arg2?: VesselType,
+  arg3?: number
 ): Promise<FreightForecastResponse> {
+  let payload: Partial<ForecastRequestPayload>;
+
+  if (typeof arg1 === 'string') {
+    payload = {
+      originPort: arg1.includes('aus') ? 'Hay Point' : 'Australia',
+      destinationPort: 'Paradip',
+      vesselType: arg2 || 'Panamax',
+      horizonDays: arg3 || 14,
+    };
+  } else {
+    payload = arg1 || { originPort: 'Hay Point', destinationPort: 'Paradip', vesselType: 'Panamax', horizonDays: 14 };
+  }
+
   return smartFetch<FreightForecastResponse>(
-    () => apiClient.post('/forecast/freight', payload || { originPort: 'Hay Point', destinationPort: 'Paradip', vesselType: 'Panamax', horizonDays: 14 }),
+    () => apiClient.post('/forecast/freight', payload),
     () => {
-      // Dynamic adjustments if payload is provided
       if (payload?.vesselType === 'Capesize') {
         return {
           ...DEMO_FREIGHT_FORECAST,

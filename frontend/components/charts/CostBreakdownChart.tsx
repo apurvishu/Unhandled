@@ -7,85 +7,93 @@ import {
   Pie,
   Cell,
   Tooltip,
-  Legend,
 } from 'recharts';
 import { formatCurrency } from '@/lib/utils';
 
-export interface CostBreakdownChartProps {
-  breakdown: {
-    freightCost: number;
-    bunkerFuelCost: number;
-    portCosts: number;
-    demurrageWaitingRiskCost: number;
-    otherVoyageCost: number;
+interface CostBreakdownChartProps {
+  costSummary: {
+    totalOutlayUsd: number;
+    baseFreightCostUsd: number;
+    bunkerFuelCostUsd: number;
+    portDuesAndHandlingUsd: number;
+    canalAndTollsUsd: number;
+    demurrageRiskCostUsd: number;
   };
   height?: number;
 }
 
 export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
-  breakdown,
+  costSummary,
   height = 240,
 }) => {
   const data = [
-    { name: 'Freight Base Cost', value: breakdown.freightCost, color: '#0284c7' },
-    { name: 'Bunker Fuel (VLSFO)', value: breakdown.bunkerFuelCost, color: '#06b6d4' },
-    { name: 'Port Dues & Tug Pilotage', value: breakdown.portCosts, color: '#6366f1' },
-    { name: 'Demurrage Waiting Risk', value: breakdown.demurrageWaitingRiskCost, color: '#f59e0b' },
-    { name: 'Insurance & Canal/Other', value: breakdown.otherVoyageCost, color: '#64748b' },
+    { name: 'Base Vessel Hire', value: costSummary.baseFreightCostUsd, color: '#18181b' },
+    { name: 'Singapore VLSFO Bunker', value: costSummary.bunkerFuelCostUsd, color: '#52525b' },
+    { name: 'Port Dues & Pilotage', value: costSummary.portDuesAndHandlingUsd, color: '#a1a1aa' },
+    { name: 'Canal & Transit Tolls', value: costSummary.canalAndTollsUsd, color: '#d4d4d8' },
+    { name: 'Demurrage Congestion Risk', value: costSummary.demurrageRiskCostUsd, color: '#ea580c' },
   ];
 
-  const total = data.reduce((acc, item) => acc + item.value, 0);
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const item = payload[0];
-      const pct = ((item.value / total) * 100).toFixed(1);
-      return (
-        <div className="bg-slate-900 border border-slate-700 rounded-lg p-2.5 shadow-xl text-xs">
-          <p className="font-bold text-slate-200">{item.name}</p>
-          <p className="text-sky-300 font-mono mt-0.5">
-            {formatCurrency(item.value)} ({pct}%)
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
-    <div className="w-full bg-slate-900/60 border border-slate-800 rounded-xl p-4">
-      <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-2">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">
-          Estimated Voyage Cost Breakdown
-        </h4>
-        <span className="text-xs font-mono font-bold text-white">Total: {formatCurrency(total)}</span>
-      </div>
-
-      <div style={{ width: '100%', height }}>
+    <div className="flex flex-col sm:flex-row items-center gap-6" style={{ minHeight: height }}>
+      <div className="w-48 h-48 relative shrink-0">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={data}
-              cx="50%"
-              cy="50%"
               innerRadius={50}
-              outerRadius={80}
-              paddingAngle={3}
+              outerRadius={75}
+              paddingAngle={2}
               dataKey="value"
+              stroke="#ffffff"
+              strokeWidth={1}
             >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip content={<CustomTooltip />} />
-            <Legend
-              wrapperStyle={{ fontSize: '11px', color: '#94a3b8' }}
-              layout="horizontal"
-              verticalAlign="bottom"
-              align="center"
+            <Tooltip
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  const item = payload[0];
+                  const percent = ((Number(item.value) / costSummary.totalOutlayUsd) * 100).toFixed(1);
+                  return (
+                    <div className="bg-white border border-zinc-300 rounded p-2 text-xs font-mono shadow-md">
+                      <p className="font-bold text-zinc-900">{item.name}</p>
+                      <p className="text-zinc-700">{formatCurrency(Number(item.value))} ({percent}%)</p>
+                    </div>
+                  );
+                }
+                return null;
+              }}
             />
           </PieChart>
         </ResponsiveContainer>
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <span className="text-[10px] text-zinc-400 font-mono uppercase">Total</span>
+          <span className="text-xs font-bold text-zinc-950 font-mono">
+            {formatCurrency(costSummary.totalOutlayUsd)}
+          </span>
+        </div>
+      </div>
+
+      {/* Structured Cost Item Legend */}
+      <div className="flex-1 w-full space-y-2 text-xs font-mono">
+        {data.map((item) => {
+          const percent = ((item.value / costSummary.totalOutlayUsd) * 100).toFixed(1);
+          return (
+            <div key={item.name} className="flex items-center justify-between pb-1 border-b border-zinc-100">
+              <div className="flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ backgroundColor: item.color }} />
+                <span className="text-zinc-700 font-sans">{item.name}</span>
+              </div>
+              <div className="text-right">
+                <span className="font-bold text-zinc-900">{formatCurrency(item.value)}</span>
+                <span className="text-[10px] text-zinc-400 ml-1">({percent}%)</span>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

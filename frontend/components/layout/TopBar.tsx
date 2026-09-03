@@ -7,12 +7,8 @@ import { UserRole } from '@/types';
 import { 
   Bell, 
   Search, 
-  Ship, 
-  ShieldCheck, 
   ChevronDown, 
   LogOut, 
-  Sparkles, 
-  Zap, 
   Radio,
   SlidersHorizontal
 } from 'lucide-react';
@@ -27,71 +23,61 @@ export const TopBar: React.FC = () => {
   const unreadCount = DEMO_NOTIFICATIONS.filter((n) => !n.isRead).length;
 
   const roles: { role: UserRole; label: string; desc: string }[] = [
-    { role: 'PROCUREMENT_OFFICER', label: 'Procurement Officer', desc: 'Manage bulk cargo, charter decisions & optimization' },
+    { role: 'PROCUREMENT_OFFICER', label: 'Procurement Officer', desc: 'Cargo matching, charter decisions & freight optimization' },
     { role: 'SHIP_OWNER', label: 'Ship Owner', desc: 'Fleet management, cargo marketplace & offers' },
     { role: 'PORT_OWNER', label: 'Port Owner', desc: 'Berths, port capacity & congestion monitoring' },
-    { role: 'ADMIN', label: 'System Admin', desc: 'Platform analytics, ports, vessels & security' },
+    { role: 'ADMIN', label: 'System Admin', desc: 'Platform telemetry, vessels & analytics' },
   ];
 
   return (
-    <header className="sticky top-0 z-40 h-16 w-full border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between">
+    <header className="sticky top-0 z-40 h-14 w-full border-b border-zinc-200 bg-white px-4 sm:px-6 flex items-center justify-between">
       {/* Brand & Search */}
       <div className="flex items-center gap-6">
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="h-9 w-9 rounded-lg bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-sky-600/30 group-hover:scale-105 transition-transform">
-            <Ship className="h-5 w-5 text-white" />
+        <Link href="/" className="flex items-center gap-2.5">
+          <div className="h-7 w-7 rounded bg-black flex items-center justify-center text-white font-mono text-xs font-bold">
+            N
           </div>
           <div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-base tracking-tight text-white">NAVIQ</span>
-              <span className="text-[10px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30">
+            <div className="flex items-center gap-1.5 leading-none">
+              <span className="font-bold text-sm tracking-tight text-zinc-950">NAVIQ</span>
+              <span className="text-[10px] uppercase font-mono px-1 py-0.2 text-zinc-500 border border-zinc-200 rounded">
                 SIH26006
               </span>
             </div>
-            <p className="text-[10px] text-slate-400 font-medium leading-none">Intelligent Freight & Chartering</p>
           </div>
         </Link>
 
         {/* Global Search Bar */}
-        <div className="hidden md:flex items-center relative w-72 lg:w-96">
-          <Search className="absolute left-3 h-4 w-4 text-slate-400 pointer-events-none" />
+        <div className="hidden md:flex items-center relative w-64 lg:w-80">
+          <Search className="absolute left-2.5 h-3.5 w-3.5 text-zinc-400 pointer-events-none" />
           <input
             type="text"
-            placeholder="Search vessels, ports, cargo, IMO, contracts..."
-            className="w-full bg-slate-900/90 border border-slate-800 rounded-lg pl-9 pr-12 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+            placeholder="Search vessels, ports, cargo, IMO..."
+            className="w-full bg-zinc-50 border border-zinc-200 rounded pl-8 pr-10 py-1 text-xs text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-black focus:bg-white"
           />
-          <span className="absolute right-2.5 text-[10px] text-slate-500 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">
-            ⌘K
+          <span className="absolute right-2 text-[10px] font-mono text-zinc-400 border border-zinc-200 px-1 rounded bg-white">
+            /
           </span>
         </div>
       </div>
 
       {/* Right Tools: Live/Demo Switch, Role Quick-Switch, Notifications, User Menu */}
-      <div className="flex items-center gap-3">
-        {/* Live vs Demo Simulation Mode Switcher */}
+      <div className="flex items-center gap-2">
+        {/* Live vs Demo Simulation Switcher */}
         <button
           onClick={() => toggleDemoMode()}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${
+          className={`flex items-center gap-1.5 px-2 py-1 rounded text-[11px] font-mono uppercase tracking-tight border transition-colors ${
             isDemoMode
-              ? 'bg-amber-500/10 text-amber-300 border-amber-500/30 hover:bg-amber-500/20'
-              : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
+              ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100'
+              : 'bg-emerald-50 text-emerald-900 border-emerald-300 hover:bg-emerald-100'
           }`}
-          title="Toggle between Live FastAPI backend & High-Fidelity Demo Simulation mode"
+          title="Toggle between Live API and Simulation mode"
         >
-          {isDemoMode ? (
-            <>
-              <Zap className="h-3.5 w-3.5 text-amber-400 fill-amber-400/30 animate-pulse" />
-              <span>DEMO SIMULATION</span>
-            </>
-          ) : (
-            <>
-              <Radio className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
-              <span>LIVE API</span>
-            </>
-          )}
+          <span className={`h-1.5 w-1.5 rounded-full ${isDemoMode ? 'bg-amber-600' : 'bg-emerald-600'}`} />
+          <span>{isDemoMode ? 'SIMULATION' : 'LIVE API'}</span>
         </button>
 
-        {/* Judge / Fast Role Switcher */}
+        {/* Role Switcher */}
         <div className="relative">
           <button
             onClick={() => {
@@ -99,21 +85,20 @@ export const TopBar: React.FC = () => {
               setShowNotifications(false);
               setShowUserMenu(false);
             }}
-            className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 hover:border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium transition"
+            className="flex items-center gap-1.5 bg-white hover:bg-zinc-50 text-zinc-900 border border-zinc-300 px-2.5 py-1 rounded text-xs font-medium transition"
           >
-            <SlidersHorizontal className="h-3.5 w-3.5 text-sky-400" />
-            <span className="hidden sm:inline">Role:</span>
-            <span className="text-sky-400 font-semibold">{user?.role?.replace('_', ' ') || 'Procurement'}</span>
-            <ChevronDown className="h-3 w-3 text-slate-400" />
+            <SlidersHorizontal className="h-3 w-3 text-zinc-500" />
+            <span className="hidden sm:inline text-zinc-500">Role:</span>
+            <span className="font-semibold">{user?.role?.replace('_', ' ') || 'Procurement'}</span>
+            <ChevronDown className="h-3 w-3 text-zinc-400" />
           </button>
 
           {showRoleSelector && (
-            <div className="absolute right-0 mt-2 w-72 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95">
-              <div className="px-3 py-2 border-b border-slate-800">
-                <p className="text-xs font-bold text-slate-200">Switch Demonstration Role</p>
-                <p className="text-[11px] text-slate-400">Instantly test role-based workflows & access control</p>
+            <div className="absolute right-0 mt-1.5 w-64 bg-white border border-zinc-200 rounded shadow-lg p-1 z-50">
+              <div className="px-3 py-1.5 border-b border-zinc-100 text-[11px] font-bold text-zinc-600 uppercase tracking-wider">
+                Select Persona
               </div>
-              <div className="py-1 space-y-1">
+              <div className="py-1">
                 {roles.map((r) => (
                   <button
                     key={r.role}
@@ -121,12 +106,12 @@ export const TopBar: React.FC = () => {
                       quickLogin(r.role);
                       setShowRoleSelector(false);
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-lg transition text-xs flex flex-col ${
-                      user?.role === r.role ? 'bg-sky-600/20 text-sky-300 border border-sky-500/40' : 'hover:bg-slate-800 text-slate-300'
+                    className={`w-full text-left px-2.5 py-1.5 rounded transition text-xs flex flex-col ${
+                      user?.role === r.role ? 'bg-zinc-900 text-white font-medium' : 'hover:bg-zinc-100 text-zinc-800'
                     }`}
                   >
                     <span className="font-semibold">{r.label}</span>
-                    <span className="text-[10px] text-slate-400">{r.desc}</span>
+                    <span className={`text-[10px] ${user?.role === r.role ? 'text-zinc-400' : 'text-zinc-500'}`}>{r.desc}</span>
                   </button>
                 ))}
               </div>
@@ -142,38 +127,35 @@ export const TopBar: React.FC = () => {
               setShowRoleSelector(false);
               setShowUserMenu(false);
             }}
-            className="relative p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-900 rounded-lg transition"
+            className="relative p-1.5 text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100 rounded transition border border-transparent"
             aria-label="Notifications"
           >
             <Bell className="h-4 w-4" />
             {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-sky-400 animate-ping" />
-            )}
-            {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-sky-500" />
+              <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-accent" />
             )}
           </button>
 
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 z-50">
-              <div className="flex items-center justify-between px-3 py-2 border-b border-slate-800">
-                <span className="text-xs font-bold text-slate-200">Notifications ({unreadCount} new)</span>
+            <div className="absolute right-0 mt-1.5 w-80 bg-white border border-zinc-300 rounded shadow-xl p-1 z-50">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-zinc-100">
+                <span className="text-xs font-bold uppercase tracking-wider text-zinc-700">Notifications ({unreadCount})</span>
                 <Link
                   href="/notifications"
                   onClick={() => setShowNotifications(false)}
-                  className="text-[11px] text-sky-400 hover:text-sky-300 font-medium"
+                  className="text-[11px] text-zinc-900 hover:underline font-medium"
                 >
                   View all
                 </Link>
               </div>
-              <div className="max-h-72 overflow-y-auto divide-y divide-slate-800/60 py-1">
+              <div className="max-h-64 overflow-y-auto divide-y divide-zinc-100 py-1">
                 {DEMO_NOTIFICATIONS.map((n) => (
-                  <div key={n.id} className={`p-2.5 text-xs hover:bg-slate-800/50 rounded-lg transition ${!n.isRead ? 'bg-sky-950/20' : ''}`}>
+                  <div key={n.id} className="p-2.5 text-xs hover:bg-zinc-50 transition">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-slate-200">{n.title}</span>
-                      <span className="text-[10px] text-slate-500">{n.createdAt}</span>
+                      <span className="font-semibold text-zinc-900">{n.title}</span>
+                      <span className="text-[10px] font-mono text-zinc-400">{n.createdAt}</span>
                     </div>
-                    <p className="text-slate-400 text-[11px] mt-0.5 leading-relaxed">{n.message}</p>
+                    <p className="text-zinc-600 text-[11px] mt-0.5 leading-relaxed">{n.message}</p>
                   </div>
                 ))}
               </div>
@@ -181,7 +163,7 @@ export const TopBar: React.FC = () => {
           )}
         </div>
 
-        {/* User Profile / Menu */}
+        {/* User Menu */}
         <div className="relative">
           <button
             onClick={() => {
@@ -189,26 +171,19 @@ export const TopBar: React.FC = () => {
               setShowRoleSelector(false);
               setShowNotifications(false);
             }}
-            className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-900 border border-transparent hover:border-slate-800 transition"
+            className="flex items-center gap-1.5 p-1 rounded hover:bg-zinc-100 transition"
           >
-            <div className="h-7 w-7 rounded-full bg-gradient-to-tr from-slate-700 to-slate-600 flex items-center justify-center font-bold text-xs text-sky-300 border border-sky-500/30">
+            <div className="h-6 w-6 rounded bg-zinc-200 text-zinc-800 flex items-center justify-center font-bold text-xs">
               {user?.name ? user.name[0] : 'U'}
             </div>
-            <div className="hidden lg:block text-left">
-              <p className="text-xs font-medium text-slate-200 leading-none">{user?.name || 'User'}</p>
-              <p className="text-[10px] text-slate-400 leading-none mt-1">{user?.companyName || 'Enterprise'}</p>
-            </div>
-            <ChevronDown className="h-3 w-3 text-slate-400" />
+            <ChevronDown className="h-3 w-3 text-zinc-400" />
           </button>
 
           {showUserMenu && (
-            <div className="absolute right-0 mt-2 w-56 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 z-50">
-              <div className="px-3 py-2 border-b border-slate-800">
-                <p className="text-xs font-bold text-slate-200">{user?.name}</p>
-                <p className="text-[11px] text-slate-400 truncate">{user?.email}</p>
-                <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">
-                  {user?.role}
-                </span>
+            <div className="absolute right-0 mt-1.5 w-48 bg-white border border-zinc-200 rounded shadow-xl p-1 z-50">
+              <div className="px-3 py-2 border-b border-zinc-100">
+                <p className="text-xs font-bold text-zinc-900">{user?.name}</p>
+                <p className="text-[10px] text-zinc-500 truncate">{user?.email}</p>
               </div>
               <div className="py-1">
                 <button
@@ -216,7 +191,7 @@ export const TopBar: React.FC = () => {
                     logout();
                     setShowUserMenu(false);
                   }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-xs text-rose-400 hover:bg-rose-950/30 rounded-lg transition"
+                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-700 hover:bg-red-50 rounded transition"
                 >
                   <LogOut className="h-3.5 w-3.5" />
                   <span>Log out</span>
