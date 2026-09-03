@@ -1,21 +1,12 @@
+'use client';
+
 import React from 'react';
 import { VesselMatch } from '@/types';
+import { formatCurrency, formatDwt, formatNauticalMiles } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
-import { formatCurrency, formatDwt, formatNauticalMiles, getCongestionBadgeColor } from '@/lib/utils';
-import { 
-  Ship, 
-  Sparkles, 
-  Check, 
-  Clock, 
-  Compass, 
-  Anchor, 
-  AlertTriangle, 
-  DollarSign,
-  ArrowRight,
-  Info
-} from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 
-export interface VesselCardProps {
+interface VesselCardProps {
   match: VesselMatch;
   isBestMatch?: boolean;
   onRequestOffer?: (match: VesselMatch) => void;
@@ -28,106 +19,83 @@ export const VesselCard: React.FC<VesselCardProps> = ({
   onRequestOffer,
   onViewDetails,
 }) => {
-  const { vessel, matchScorePercent, freightRateUsdPerMt, eta, distanceNauticalMiles, congestionRisk } = match;
-  const congestionBadge = getCongestionBadgeColor(congestionRisk);
+  const { vessel, matchScorePercent, distanceNauticalMiles, freightRateUsdPerMt } = match;
+  const etaDisplay = (match as any).estimatedArrivalDate || match.eta || '14 Sep 2026';
+  const totalCost = (match as any).totalVoyageCostUsd || match.estimatedTotalCostUsd || 1781250;
 
   return (
     <div
-      className={`rounded-xl border p-5 transition-all duration-200 relative overflow-hidden bg-slate-900/80 ${
-        isBestMatch
-          ? 'border-sky-500/50 shadow-glow bg-gradient-to-b from-sky-950/20 to-slate-900'
-          : 'border-slate-800 hover:border-slate-700'
+      className={`bg-white border rounded p-5 space-y-4 shadow-sm transition ${
+        isBestMatch ? 'border-2 border-zinc-950' : 'border-zinc-200 hover:border-zinc-300'
       }`}
     >
-      {isBestMatch && (
-        <div className="absolute top-0 right-0">
-          <div className="bg-gradient-to-l from-sky-500 to-blue-600 text-white text-[10px] font-extrabold uppercase px-3 py-1 rounded-bl-lg tracking-wider flex items-center gap-1 shadow-md">
-            <Sparkles className="h-3 w-3" /> BEST MATCH
-          </div>
-        </div>
-      )}
-
-      {/* Title & Match Score */}
-      <div className="flex items-start justify-between pr-16">
+      {/* Header */}
+      <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <Ship className="h-4 w-4 text-sky-400" />
-            <span>{vessel.name}</span>
-          </h3>
-          <div className="flex items-center gap-2 text-xs text-slate-400 mt-1">
-            <span className="font-semibold text-slate-300">{vessel.type}</span>
-            <span>•</span>
-            <span>IMO: {vessel.imo}</span>
-            <span>•</span>
-            <span>{formatDwt(vessel.dwt)}</span>
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-bold text-zinc-950 font-mono">{vessel.name}</h3>
+            {isBestMatch && (
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-zinc-900 text-white">
+                TOP CANDIDATE
+              </span>
+            )}
           </div>
+          <p className="text-xs text-zinc-500 font-mono mt-0.5">
+            IMO {vessel.imo} • {vessel.type} • Flag: {vessel.flag}
+          </p>
         </div>
 
         <div className="text-right">
-          <div className="text-2xl font-black font-mono text-emerald-400">{matchScorePercent}%</div>
-          <span className="text-[10px] uppercase font-bold text-slate-400">Match Score</span>
+          <span className="text-[10px] text-zinc-400 font-mono uppercase block">Match Score</span>
+          <span className="text-lg font-bold text-zinc-950 font-mono">{matchScorePercent}%</span>
         </div>
       </div>
 
-      {/* Grid of Attributes */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-4 p-3.5 rounded-lg bg-slate-950/70 border border-slate-800/80 text-xs">
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-2 gap-2 p-3 bg-zinc-50 border border-zinc-200 rounded text-xs font-mono">
         <div>
-          <span className="text-[10px] text-slate-400 uppercase block font-semibold">Freight Quote</span>
-          <span className="font-extrabold font-mono text-white text-sm">
-            {formatCurrency(freightRateUsdPerMt, 2)} <span className="text-[10px] text-slate-400 font-normal">/ MT</span>
-          </span>
+          <span className="text-[10px] text-zinc-400 block uppercase font-sans">Capacity:</span>
+          <strong className="text-zinc-900">{formatDwt(vessel.dwt)}</strong>
         </div>
         <div>
-          <span className="text-[10px] text-slate-400 uppercase block font-semibold">Target ETA</span>
-          <span className="font-semibold text-slate-200 text-sm">{eta}</span>
+          <span className="text-[10px] text-zinc-400 block uppercase font-sans">Max Draft:</span>
+          <span className="text-zinc-900">{vessel.maxDraft} m</span>
         </div>
         <div>
-          <span className="text-[10px] text-slate-400 uppercase block font-semibold">Distance</span>
-          <span className="font-semibold text-slate-200 font-mono">{formatNauticalMiles(distanceNauticalMiles)}</span>
+          <span className="text-[10px] text-zinc-400 block uppercase font-sans">Ballast Distance:</span>
+          <span className="text-zinc-900">{formatNauticalMiles(distanceNauticalMiles)}</span>
         </div>
         <div>
-          <span className="text-[10px] text-slate-400 uppercase block font-semibold">Congestion</span>
-          <span className={`inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${congestionBadge.bg} ${congestionBadge.text}`}>
-            {congestionRisk}
-          </span>
+          <span className="text-[10px] text-zinc-400 block uppercase font-sans">Load Port ETA:</span>
+          <span className="text-zinc-900">{etaDisplay.split('T')[0]}</span>
         </div>
       </div>
 
-      {/* Compatibility Check Badges */}
-      <div className="flex items-center gap-4 text-xs text-slate-300 py-2 border-t border-slate-800/60 flex-wrap">
-        <div className="flex items-center gap-1.5">
-          <span className="h-4 w-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold">✓</span>
-          <span>Draft Fit ({vessel.maxDraft}m)</span>
+      {/* Cost Summary */}
+      <div className="flex items-center justify-between pt-2 border-t border-zinc-100 text-xs">
+        <div>
+          <span className="text-[10px] text-zinc-400 block uppercase font-mono">Quoted Freight Rate</span>
+          <strong className="text-sm font-mono text-zinc-950">${freightRateUsdPerMt}/MT</strong>
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="h-4 w-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold">✓</span>
-          <span>Laycan Ready</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="h-4 w-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold">✓</span>
-          <span>Channel UKC OK</span>
+        <div className="text-right">
+          <span className="text-[10px] text-zinc-400 block uppercase font-mono">Total Voyage Cost</span>
+          <span className="text-sm font-bold font-mono text-zinc-950">{formatCurrency(totalCost)}</span>
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between gap-3">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onViewDetails ? onViewDetails(match) : null}
-        >
-          <Info className="h-3.5 w-3.5" />
-          <span>View Specs & Route</span>
-        </Button>
-
-        <Button
-          variant={isBestMatch ? 'primary' : 'secondary'}
-          size="sm"
-          onClick={() => onRequestOffer ? onRequestOffer(match) : null}
-        >
-          <span>Request Charter Offer</span>
-          <ArrowRight className="h-3.5 w-3.5" />
-        </Button>
+      {/* Action Buttons */}
+      <div className="grid grid-cols-2 gap-2 pt-2">
+        {onViewDetails && (
+          <Button variant="secondary" size="sm" onClick={() => onViewDetails(match)}>
+            Specifications
+          </Button>
+        )}
+        {onRequestOffer && (
+          <Button variant="primary" size="sm" onClick={() => onRequestOffer(match)}>
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            <span>Select Vessel</span>
+          </Button>
+        )}
       </div>
     </div>
   );

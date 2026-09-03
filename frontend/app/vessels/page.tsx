@@ -10,9 +10,10 @@ import { Modal } from '@/components/ui/Card';
 import { Input, Select } from '@/components/ui/Input';
 import { getVessels, createVessel } from '@/services/vessels';
 import { VESSEL_TYPES } from '@/config/constants';
-import { Vessel, VesselType } from '@/types';
+import { VesselType } from '@/types';
 import { formatCurrency, formatDwt, formatKnots, getStatusBadgeColor } from '@/lib/utils';
-import { Ship, Plus, Compass, Radio, Search, Filter } from 'lucide-react';
+import { Plus, Compass, Search } from 'lucide-react';
+import { BackButton } from '@/components/ui/BackButton';
 
 export default function VesselsDirectoryPage() {
   const { data: vessels = [], refetch } = useQuery({
@@ -53,12 +54,14 @@ export default function VesselsDirectoryPage() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-6">
+      <BackButton href="/" label="Back to Home" />
+
       <PageHeader
         title="Vessels & AIS Fleet Directory"
         description="Global bulk carrier tracking, specifications, draft limitations, and real-time navigation telemetry."
         badge={`${vessels.length} Active Vessels`}
-        badgeVariant="info"
+        badgeVariant="default"
       >
         <Button variant="primary" size="md" onClick={() => setIsAddModalOpen(true)}>
           <Plus className="h-4 w-4" />
@@ -69,37 +72,37 @@ export default function VesselsDirectoryPage() {
       {/* AIS MAP */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-            <Compass className="h-4 w-4 text-sky-400" />
+          <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-500 font-mono flex items-center gap-2">
+            <Compass className="h-4 w-4 text-zinc-800" />
             <span>Interactive AIS Live Map & Channel Navigation</span>
           </h3>
-          <span className="text-xs text-emerald-400 font-mono flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-xs text-emerald-800 font-mono flex items-center gap-1.5 font-bold">
+            <span className="h-2 w-2 rounded-full bg-emerald-600 animate-pulse" />
             Streaming AIS Telemetry
           </span>
         </div>
-        <AisVesselMap vessels={filteredVessels} height="420px" />
+        <AisVesselMap vessels={filteredVessels} height="400px" />
       </section>
 
       {/* SEARCH & FILTERS */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/60 border border-slate-800 p-4 rounded-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-zinc-200 p-4 rounded shadow-sm">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
+          <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-zinc-400 pointer-events-none" />
           <input
             type="text"
             placeholder="Filter by vessel name, IMO number, or destination..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-9 pr-4 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-500"
+            className="w-full bg-zinc-50 border border-zinc-200 rounded pl-8 pr-4 py-1.5 text-xs text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-black focus:bg-white"
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400 font-medium">Class:</span>
+          <span className="text-xs text-zinc-500 font-medium">Class:</span>
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-sky-500"
+            className="bg-zinc-50 border border-zinc-200 rounded px-2.5 py-1.5 text-xs text-zinc-900 focus:outline-none focus:border-black"
           >
             <option value="ALL">All Vessel Types</option>
             {VESSEL_TYPES.map((t) => (
@@ -110,56 +113,54 @@ export default function VesselsDirectoryPage() {
       </div>
 
       {/* FLEET TABLE */}
-      <div className="w-full overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/60 shadow-lg">
-        <table className="w-full text-left text-xs text-slate-300">
-          <thead className="bg-slate-950 text-[10px] uppercase font-bold text-slate-400 border-b border-slate-800 tracking-wider">
+      <div className="w-full overflow-x-auto rounded border border-zinc-200 bg-white shadow-sm">
+        <table className="w-full text-left text-xs text-zinc-800 font-mono">
+          <thead className="bg-zinc-50 text-[10px] uppercase font-bold text-zinc-500 border-b border-zinc-200 font-sans tracking-wider">
             <tr>
-              <th className="py-3.5 px-4">Vessel Name / IMO</th>
-              <th className="py-3.5 px-4">Class</th>
-              <th className="py-3.5 px-4">DWT Capacity</th>
-              <th className="py-3.5 px-4">Max Draft</th>
-              <th className="py-3.5 px-4">Speed & Heading</th>
-              <th className="py-3.5 px-4">Destination / ETA</th>
-              <th className="py-3.5 px-4">Status</th>
-              <th className="py-3.5 px-4 text-right">Daily Rate</th>
+              <th className="py-3 px-4">Vessel Name / IMO</th>
+              <th className="py-3 px-4">Class</th>
+              <th className="py-3 px-4">DWT Capacity</th>
+              <th className="py-3 px-4">Max Draft</th>
+              <th className="py-3 px-4">Speed & Heading</th>
+              <th className="py-3 px-4">Destination / ETA</th>
+              <th className="py-3 px-4">Status</th>
+              <th className="py-3 px-4 text-right">Daily Rate</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60 font-medium">
+          <tbody className="divide-y divide-zinc-100 font-medium">
             {filteredVessels.map((v) => {
               const statusStyle = getStatusBadgeColor(v.aisPosition.status);
 
               return (
-                <tr key={v.id} className="hover:bg-slate-800/40 transition">
-                  <td className="py-3.5 px-4">
-                    <Link href={`/vessels/${v.id}`} className="font-bold text-white hover:text-sky-400 text-sm">
+                <tr key={v.id} className="hover:bg-zinc-50/80 transition">
+                  <td className="py-3 px-4 font-sans">
+                    <Link href={`/vessels/${v.id}`} className="font-bold text-zinc-950 hover:underline text-sm font-mono">
                       {v.name}
                     </Link>
-                    <div className="text-[10px] text-slate-500 font-mono">IMO: {v.imo} • Flag: {v.flag}</div>
+                    <div className="text-[10px] text-zinc-400 font-mono">IMO {v.imo} • Flag: {v.flag}</div>
                   </td>
-                  <td className="py-3.5 px-4">
-                    <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-sky-300 text-[11px] font-semibold">
-                      {v.type}
-                    </span>
+                  <td className="py-3 px-4 font-sans text-zinc-700">
+                    {v.type}
                   </td>
-                  <td className="py-3.5 px-4 font-mono font-semibold text-slate-200">
+                  <td className="py-3 px-4 font-bold text-zinc-950">
                     {formatDwt(v.dwt)}
                   </td>
-                  <td className="py-3.5 px-4 font-mono">
+                  <td className="py-3 px-4 text-zinc-700">
                     {v.maxDraft}m
                   </td>
-                  <td className="py-3.5 px-4 text-slate-300">
+                  <td className="py-3 px-4 text-zinc-700">
                     {formatKnots(v.aisPosition.speedKnots)} @ {v.aisPosition.headingDegrees}°
                   </td>
-                  <td className="py-3.5 px-4">
-                    <div className="text-slate-200">{v.aisPosition.destination}</div>
-                    <div className="text-[10px] text-slate-500 font-mono">ETA: {v.aisPosition.eta.split('T')[0]}</div>
+                  <td className="py-3 px-4 font-sans">
+                    <div className="text-zinc-900">{v.aisPosition.destination}</div>
+                    <div className="text-[10px] text-zinc-400 font-mono">ETA: {v.aisPosition.eta.split('T')[0]}</div>
                   </td>
-                  <td className="py-3.5 px-4">
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}>
+                  <td className="py-3 px-4">
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}>
                       {v.aisPosition.status}
                     </span>
                   </td>
-                  <td className="py-3.5 px-4 text-right font-mono font-bold text-emerald-400">
+                  <td className="py-3 px-4 text-right font-bold text-zinc-950">
                     {formatCurrency(v.dailyCharterRateUsd)}
                   </td>
                 </tr>
@@ -229,7 +230,7 @@ export default function VesselsDirectoryPage() {
               />
             </div>
 
-            <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
+            <div className="pt-4 border-t border-zinc-200 flex items-center justify-end gap-3">
               <Button variant="secondary" size="md" onClick={() => setIsAddModalOpen(false)}>
                 Cancel
               </Button>

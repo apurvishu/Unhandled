@@ -7,12 +7,10 @@ import { useQuery } from '@tanstack/react-query';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { KpiCard } from '@/components/dashboard/KpiCard';
 import { PortCongestionChart } from '@/components/charts/PortCongestionChart';
-import { AisVesselMap } from '@/components/maps/AisVesselMap';
 import { Button } from '@/components/ui/Button';
 import { getPortCongestion } from '@/services/congestion';
 import { getPortById } from '@/services/ports';
-import { getCongestionBadgeColor } from '@/lib/utils';
-import { Clock, ArrowLeft, Anchor, AlertTriangle, Layers, Ship, CheckCircle2 } from 'lucide-react';
+import { Clock, ArrowLeft, Anchor, AlertTriangle, Layers, Ship } from 'lucide-react';
 
 export default function PortCongestionDetailPage() {
   const params = useParams();
@@ -29,16 +27,14 @@ export default function PortCongestionDetailPage() {
   });
 
   if (!congestion || !port) {
-    return <div className="p-8 text-slate-400">Loading port congestion model...</div>;
+    return <div className="p-8 text-xs font-mono text-zinc-500">Loading port congestion model...</div>;
   }
 
-  const badge = getCongestionBadgeColor(congestion.currentCongestion);
-
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
+    <div className="space-y-8">
       <div className="flex items-center gap-2">
         <Link href="/congestion">
-          <Button variant="ghost" size="sm" className="text-slate-400">
+          <Button variant="ghost" size="sm" className="text-zinc-500">
             <ArrowLeft className="h-4 w-4" />
             <span>Back to Global Congestion</span>
           </Button>
@@ -66,7 +62,6 @@ export default function PortCongestionDetailPage() {
           value={congestion.currentCongestion}
           subtitle="Anchorage queue active"
           icon={AlertTriangle}
-          variant="warning"
         />
 
         <KpiCard
@@ -75,7 +70,6 @@ export default function PortCongestionDetailPage() {
           subtitle="Expected improvement"
           icon={Clock}
           change={{ value: '-13.5h wait', trend: 'DOWN', isPositive: true }}
-          variant="success"
         />
 
         <KpiCard
@@ -90,35 +84,34 @@ export default function PortCongestionDetailPage() {
           value={`${congestion.berthUtilizationPercent}%`}
           subtitle="Operational load"
           icon={Anchor}
-          variant="primary"
         />
       </div>
 
-      {/* 7-DAY WAITING TIME & CONGESTION FORECAST */}
-      <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-        <h3 className="text-base font-bold text-white flex items-center gap-2">
-          <Clock className="h-4 w-4 text-amber-400" />
+      {/* 7-DAY WAITING TIME FORECAST */}
+      <section className="bg-white border border-zinc-200 rounded p-6 shadow-sm space-y-4">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-950 font-mono flex items-center gap-2">
+          <Clock className="h-4 w-4 text-zinc-800" />
           <span>7-Day Expected Anchorage Waiting Time Horizon</span>
         </h3>
         <PortCongestionChart data={congestion.timeSeries} height={300} />
       </section>
 
       {/* ANCHORAGE QUEUE LIST */}
-      <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+      <section className="bg-white border border-zinc-200 rounded p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Layers className="h-4 w-4 text-sky-400" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-950 font-mono flex items-center gap-2">
+              <Layers className="h-4 w-4 text-zinc-800" />
               <span>Current Anchorage Queue & Berthing Sequence</span>
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">Vessels awaiting pilotage and mechanized discharge</p>
+            <p className="text-xs text-zinc-500 mt-0.5">Vessels awaiting pilotage and mechanized discharge</p>
           </div>
-          <span className="text-xs font-mono text-sky-400">{congestion.queueVessels.length} vessels anchored</span>
+          <span className="text-xs font-mono text-zinc-900 font-semibold">{congestion.queueVessels.length} vessels anchored</span>
         </div>
 
-        <div className="w-full overflow-x-auto rounded-xl border border-slate-800">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950 text-[10px] uppercase font-bold text-slate-400 border-b border-slate-800">
+        <div className="w-full overflow-x-auto rounded border border-zinc-200">
+          <table className="w-full text-left text-xs text-zinc-800 font-mono">
+            <thead className="bg-zinc-50 text-[10px] uppercase font-bold text-zinc-500 border-b border-zinc-200 font-sans">
               <tr>
                 <th className="p-3">Vessel Name / IMO</th>
                 <th className="p-3">Cargo Specification</th>
@@ -127,20 +120,20 @@ export default function PortCongestionDetailPage() {
                 <th className="p-3">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 font-medium">
+            <tbody className="divide-y divide-zinc-100 font-medium">
               {congestion.queueVessels.map((v, i) => (
-                <tr key={i} className="hover:bg-slate-800/30">
-                  <td className="p-3 font-bold text-white">
+                <tr key={i} className="hover:bg-zinc-50/80">
+                  <td className="p-3 font-bold text-zinc-950">
                     {v.vesselName}
-                    <div className="text-[10px] text-slate-500 font-mono">IMO: {v.imo}</div>
+                    <div className="text-[10px] text-zinc-400 font-normal">IMO {v.imo}</div>
                   </td>
                   <td className="p-3">
-                    <span className="font-semibold text-slate-200">{v.quantityMt.toLocaleString()} MT</span> {v.cargo}
+                    <span className="font-bold text-zinc-950">{v.quantityMt.toLocaleString()} MT</span> {v.cargo}
                   </td>
-                  <td className="p-3 text-slate-300">{v.arrivalDate}</td>
-                  <td className="p-3 text-emerald-400 font-semibold">{v.expectedBerthDate}</td>
+                  <td className="p-3 text-zinc-600">{v.arrivalDate}</td>
+                  <td className="p-3 text-emerald-800 font-bold">{v.expectedBerthDate}</td>
                   <td className="p-3">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-50 text-amber-900 border border-amber-300">
                       Anchored
                     </span>
                   </td>

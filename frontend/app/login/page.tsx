@@ -2,119 +2,127 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
-import { UserRole } from '@/types';
-import { Ship, Lock, Mail, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { Input, Select } from '@/components/ui/Input';
+import { Input } from '@/components/ui/Input';
+import { UserRole } from '@/types';
+import { ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
+  const router = useRouter();
   const { login, quickLogin, isLoading } = useAuth();
-  const [email, setEmail] = useState('procurement@steelcorp.com');
-  const [password, setPassword] = useState('password123');
-  const [role, setRole] = useState<UserRole>('PROCUREMENT_OFFICER');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login(email, role);
+    try {
+      await login(email, password);
+      router.push('/dashboard/procurement');
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Invalid credentials. Please try again or use Quick Persona Login.');
+    }
+  };
+
+  const handleQuick = (role: UserRole) => {
+    quickLogin(role);
+    if (role === 'SHIP_OWNER') router.push('/dashboard/ship-owner');
+    else if (role === 'PORT_OWNER') router.push('/dashboard/port-owner');
+    else if (role === 'ADMIN') router.push('/dashboard/admin');
+    else router.push('/dashboard/procurement');
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-950 via-[#080e1a] to-slate-950 p-4">
-      <div className="max-w-md w-full bg-slate-900/80 border border-slate-800 rounded-2xl p-8 shadow-2xl backdrop-blur-md">
+    <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white border border-zinc-200 rounded p-8 shadow-sm space-y-6">
         {/* Header */}
-        <div className="text-center space-y-2 mb-6">
-          <div className="h-12 w-12 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center mx-auto shadow-lg shadow-sky-600/30">
-            <Ship className="h-7 w-7 text-white" />
+        <div className="space-y-1 text-center">
+          <div className="inline-flex h-8 w-8 rounded bg-black text-white font-mono font-bold text-xs items-center justify-center mb-2">
+            N
           </div>
-          <h2 className="text-2xl font-extrabold text-white tracking-tight">Welcome to NAVIQ</h2>
-          <p className="text-xs text-slate-400">SIH26006 Intelligent Maritime Platform</p>
+          <h1 className="text-xl font-bold tracking-tight text-zinc-950">Sign in to NAVIQ</h1>
+          <p className="text-xs text-zinc-500">Maritime Logistics & Bulk Procurement Platform</p>
         </div>
 
-        {/* 1-Click Role Direct Launches for Instant Testing */}
-        <div className="mb-6 p-3 bg-slate-950/60 border border-slate-800 rounded-xl space-y-2">
-          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-sky-400">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>Fast Role Selection (SIH Evaluation):</span>
+        {error && (
+          <div className="p-3 bg-red-50 border border-red-300 rounded text-xs text-red-900 font-medium">
+            {error}
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => quickLogin('PROCUREMENT_OFFICER')}
-              className="px-2.5 py-2 text-xs rounded-lg bg-sky-950/50 hover:bg-sky-900/50 text-sky-200 border border-sky-500/30 text-left font-medium transition"
-            >
-              <strong className="block text-sky-400">Procurement</strong>
-              <span className="text-[10px] text-slate-400">Charter & Optimization</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => quickLogin('SHIP_OWNER')}
-              className="px-2.5 py-2 text-xs rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-left font-medium transition"
-            >
-              <strong className="block text-slate-300">Ship Owner</strong>
-              <span className="text-[10px] text-slate-400">Fleet & Tender Offers</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => quickLogin('PORT_OWNER')}
-              className="px-2.5 py-2 text-xs rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-left font-medium transition"
-            >
-              <strong className="block text-slate-300">Port Owner</strong>
-              <span className="text-[10px] text-slate-400">Berths & Congestion</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => quickLogin('ADMIN')}
-              className="px-2.5 py-2 text-xs rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-left font-medium transition"
-            >
-              <strong className="block text-slate-300">System Admin</strong>
-              <span className="text-[10px] text-slate-400">Full Platform Telemetry</span>
-            </button>
-          </div>
-        </div>
+        )}
 
-        {/* Standard Login Form */}
+        {/* Credentials Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             label="Email Address"
             type="email"
+            placeholder="officer@steelauthority.in"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            leftIcon={<Mail className="h-4 w-4" />}
             required
           />
 
           <Input
             label="Password"
             type="password"
+            placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            leftIcon={<Lock className="h-4 w-4" />}
             required
           />
 
-          <Select
-            label="User Role"
-            value={role}
-            onChange={(e) => setRole(e.target.value as UserRole)}
-            options={[
-              { value: 'PROCUREMENT_OFFICER', label: 'Procurement Officer' },
-              { value: 'SHIP_OWNER', label: 'Ship Owner / Carrier' },
-              { value: 'PORT_OWNER', label: 'Port Owner / Terminal Operator' },
-              { value: 'ADMIN', label: 'System Administrator' },
-            ]}
-          />
-
-          <Button type="submit" variant="primary" size="md" className="w-full font-bold" isLoading={isLoading}>
-            <span>Sign In to Dashboard</span>
-            <ArrowRight className="h-4 w-4" />
+          <Button type="submit" variant="primary" size="md" className="w-full" isLoading={isLoading}>
+            Sign In with Email
           </Button>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-slate-800/80 text-center text-xs text-slate-400">
+        {/* Quick Persona Logins */}
+        <div className="space-y-3 pt-4 border-t border-zinc-200">
+          <div className="text-[11px] font-mono font-bold text-zinc-400 uppercase tracking-wider text-center">
+            Or Quick 1-Click Role Login
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => handleQuick('PROCUREMENT_OFFICER')}
+            >
+              Procurement Officer
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => handleQuick('SHIP_OWNER')}
+            >
+              Ship Owner
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => handleQuick('PORT_OWNER')}
+            >
+              Port Authority
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => handleQuick('ADMIN')}
+            >
+              System Admin
+            </Button>
+          </div>
+        </div>
+
+        <div className="text-center text-xs text-zinc-500 pt-2">
           Don&apos;t have an account?{' '}
-          <Link href="/register" className="text-sky-400 hover:underline font-semibold">
-            Register Organization
+          <Link href="/register" className="font-semibold text-black hover:underline">
+            Register new account
           </Link>
         </div>
       </div>

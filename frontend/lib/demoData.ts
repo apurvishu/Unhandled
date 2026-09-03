@@ -713,3 +713,13 @@ export const DEMO_NOTIFICATIONS: AppNotification[] = [
     linkUrl: '/voyages',
   },
 ];
+
+export const DEMO_KPIS = {
+  activeCargoRequirements: 4,
+  matchedVesselsAvailable: 3,
+  currentMarketSpotRateUsdPerMt: 24.5,
+  projectedSavingsUsd: 240000,
+  averageLaycanWindowDays: 7,
+  totalVolumeUnderTenderMt: 245000,
+};
+

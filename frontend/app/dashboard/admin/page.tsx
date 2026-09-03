@@ -1,142 +1,117 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { KpiCard } from '@/components/dashboard/KpiCard';
-import { AisVesselMap } from '@/components/maps/AisVesselMap';
 import { Button } from '@/components/ui/Button';
-import { useAuth } from '@/lib/auth';
+import { BackButton } from '@/components/ui/BackButton';
 import { 
-  ShieldCheck, 
-  Users, 
-  Ship, 
-  Anchor, 
-  Navigation, 
-  FileText, 
-  Cpu, 
-  Zap, 
+  Activity, 
+  Database, 
   Radio, 
+  Cpu, 
   CheckCircle2, 
-  AlertTriangle 
+  RefreshCw,
+  Server
 } from 'lucide-react';
 
-export default function AdminDashboardPage() {
-  const { isDemoMode, toggleDemoMode } = useAuth();
+export default function AdminDashboard() {
+  const subsystems = [
+    { name: 'FastAPI REST Core Engine', status: 'HEALTHY', latency: '42ms', uptime: '99.98%' },
+    { name: 'Maritime-Transformer-v4.2 (Freight)', status: 'HEALTHY', latency: '118ms', uptime: '99.95%' },
+    { name: 'Spatial Port Congestion GNN', status: 'HEALTHY', latency: '95ms', uptime: '99.91%' },
+    { name: 'PostGIS GIS Spatial Matcher', status: 'HEALTHY', latency: '28ms', uptime: '99.99%' },
+    { name: 'Live AIS WebSocket Streaming', status: 'STREAMING', latency: '15ms', uptime: '100.0%' },
+    { name: 'Redis Cache Layer', status: 'CONNECTED', latency: '2ms', uptime: '99.99%' },
+  ];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
+    <div className="space-y-8">
+      <BackButton href="/" label="Back to Home" />
+
       <PageHeader
-        title="System Administration & Telemetry"
-        description="Global platform metrics, AI inference latency, active fleets, and security monitoring."
-        badge="Admin Authority"
-        badgeVariant="purple"
+        title="Platform Administration & System Telemetry"
+        description="Global system health, ML inference latency, AIS message throughput, and data pipeline audit."
+        badge="System Status: All Operational"
+        badgeVariant="default"
       >
-        <Button
-          variant={isDemoMode ? 'warning' : 'success'}
-          size="md"
-          onClick={() => toggleDemoMode()}
-        >
-          {isDemoMode ? <Zap className="h-4 w-4" /> : <Radio className="h-4 w-4" />}
-          <span>{isDemoMode ? 'Toggle Live API Mode' : 'Toggle Demo Simulation Mode'}</span>
+        <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+          <RefreshCw className="h-3.5 w-3.5" />
+          <span>Refresh Telemetry</span>
         </Button>
       </PageHeader>
 
-      {/* KPI Section */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+      {/* 4 Core Admin Metrics */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
-          title="Total Users"
-          value="1,420"
-          subtitle="4 active roles"
-          icon={Users}
+          title="Tracked AIS Fleet"
+          value="1,248 Vessels"
+          subtitle="Real-time global coverage"
+          icon={Radio}
         />
 
         <KpiCard
-          title="Tracked Vessels"
-          value="8,540"
-          subtitle="AIS active"
-          icon={Ship}
-          variant="primary"
-        />
-
-        <KpiCard
-          title="Ports Monitored"
-          value="48"
-          subtitle="Global major bulk"
-          icon={Anchor}
-        />
-
-        <KpiCard
-          title="Active Charters"
-          value="64"
-          subtitle="In negotiation"
-          icon={FileText}
-          variant="success"
-        />
-
-        <KpiCard
-          title="ML Latency"
-          value="42ms"
-          subtitle="Inference avg"
+          title="ML Inference Latency"
+          value="118 ms"
+          subtitle="P95 forecast response"
           icon={Cpu}
-          variant="success"
         />
 
         <KpiCard
-          title="System Health"
+          title="AIS Ingestion Rate"
+          value="4,820 msg/s"
+          subtitle="Zero dropped packets"
+          icon={Activity}
+        />
+
+        <KpiCard
+          title="System Availability"
           value="99.98%"
-          subtitle="FastAPI + PostGIS"
-          icon={ShieldCheck}
-          variant="success"
+          subtitle="Past 30 days continuous"
+          icon={Server}
         />
       </div>
 
-      {/* SYSTEM TELEMETRY & HEALTH */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider">AI Model & Subsystem Health</h3>
+      {/* Subsystem Health Audit Table */}
+      <section className="space-y-3">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-500 font-mono">
+          Subsystem Health & Ingestion Matrix
+        </h3>
 
-          <div className="space-y-3 text-xs">
-            <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 flex items-center justify-between">
-              <div>
-                <strong className="text-slate-200">Freight Forecaster (Transformer-v4.2)</strong>
-                <p className="text-[10px] text-slate-400">MAE: 0.42 • RMSE: 0.61 • 87% Confidence</p>
-              </div>
-              <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
-                OPERATIONAL
-              </span>
-            </div>
-
-            <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 flex items-center justify-between">
-              <div>
-                <strong className="text-slate-200">Port Congestion Predictor (Spatial GNN)</strong>
-                <p className="text-[10px] text-slate-400">7-Day Horizon • PostGIS Topology</p>
-              </div>
-              <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
-                OPERATIONAL
-              </span>
-            </div>
-
-            <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 flex items-center justify-between">
-              <div>
-                <strong className="text-slate-200">AIS WebSocket Streaming Ticker</strong>
-                <p className="text-[10px] text-slate-400">Throughput: 1,200 msgs/sec</p>
-              </div>
-              <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
-                ACTIVE
-              </span>
-            </div>
-          </div>
+        <div className="w-full overflow-x-auto border border-zinc-200 rounded bg-white shadow-sm">
+          <table className="w-full text-left text-xs text-zinc-800 font-mono">
+            <thead className="bg-zinc-50 text-[10px] uppercase font-bold text-zinc-500 border-b border-zinc-200 font-sans tracking-wider">
+              <tr>
+                <th className="py-3 px-4">Subsystem Component</th>
+                <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-4">P95 Latency</th>
+                <th className="py-3 px-4">Uptime (30d)</th>
+                <th className="py-3 px-4 text-right">Audit</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-100">
+              {subsystems.map((sub, i) => (
+                <tr key={i} className="hover:bg-zinc-50/80 transition-colors">
+                  <td className="py-3 px-4 font-bold text-zinc-950 font-sans">
+                    {sub.name}
+                  </td>
+                  <td className="py-3 px-4">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-50 text-emerald-800 border border-emerald-300">
+                      {sub.status}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-zinc-900">{sub.latency}</td>
+                  <td className="py-3 px-4 text-zinc-900 font-bold">{sub.uptime}</td>
+                  <td className="py-3 px-4 text-right text-emerald-800 font-bold flex items-center justify-end gap-1 font-sans">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    <span>Verified</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-
-        <div className="lg:col-span-2 space-y-3">
-          <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-            <Ship className="h-4 w-4 text-sky-400" />
-            <span>Global AIS Fleet Tracking Coverage</span>
-          </h3>
-          <AisVesselMap height="360px" />
-        </div>
-      </div>
+      </section>
     </div>
   );
 }

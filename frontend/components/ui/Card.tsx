@@ -1,8 +1,9 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
+/* ── Badge ── */
 export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'purple' | 'outline';
+  variant?: 'default' | 'success' | 'warning' | 'danger' | 'accent' | 'outline';
   size?: 'sm' | 'md';
 }
 
@@ -13,25 +14,24 @@ export const Badge: React.FC<BadgeProps> = ({
   children,
   ...props
 }) => {
-  const variants = {
-    default: 'bg-slate-800 text-slate-300 border-slate-700',
-    success: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-    warning: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
-    danger: 'bg-rose-500/10 text-rose-400 border-rose-500/30',
-    info: 'bg-sky-500/10 text-sky-400 border-sky-500/30',
-    purple: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
-    outline: 'bg-transparent text-slate-300 border-slate-700',
+  const variants: Record<string, string> = {
+    default: 'bg-zinc-100 text-zinc-800 border-zinc-200',
+    success: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+    warning: 'bg-amber-50 text-amber-900 border-amber-300',
+    danger: 'bg-red-50 text-red-900 border-red-300',
+    accent: 'bg-orange-50 text-orange-950 border-orange-300 font-semibold',
+    outline: 'bg-transparent text-zinc-700 border-zinc-300',
   };
 
-  const sizes = {
-    sm: 'text-[10px] px-2 py-0.5 font-semibold',
-    md: 'text-xs px-2.5 py-1 font-medium',
+  const sizes: Record<string, string> = {
+    sm: 'text-[10px] px-1.5 py-0.5 font-medium tracking-tight',
+    md: 'text-[11px] px-2 py-0.5 font-medium tracking-tight',
   };
 
   return (
     <div
       className={cn(
-        'inline-flex items-center gap-1 rounded-full border tracking-wide uppercase',
+        'inline-flex items-center gap-1 rounded border tabular-nums select-none',
         variants[variant],
         sizes[size],
         className
@@ -43,16 +43,18 @@ export const Badge: React.FC<BadgeProps> = ({
   );
 };
 
+/* ── Card ── */
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  isGlow?: boolean;
+  bordered?: boolean;
 }
 
-export const Card: React.FC<CardProps> = ({ className, isGlow = false, children, ...props }) => {
+export const Card: React.FC<CardProps> = ({ className, bordered = true, children, ...props }) => {
   return (
     <div
       className={cn(
-        'bg-slate-900/80 border border-slate-800 rounded-xl p-5 shadow-sm transition-all',
-        isGlow ? 'shadow-glow border-sky-500/30' : 'hover:border-slate-700',
+        'bg-white rounded',
+        bordered && 'border border-zinc-200 shadow-sm',
+        'p-5',
         className
       )}
       {...props}
@@ -62,6 +64,7 @@ export const Card: React.FC<CardProps> = ({ className, isGlow = false, children,
   );
 };
 
+/* ── Modal ── */
 export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -77,32 +80,33 @@ export const Modal: React.FC<ModalProps> = ({
   title,
   description,
   children,
-  maxWidth = 'max-w-2xl',
+  maxWidth = 'max-w-xl',
 }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity" onClick={onClose} />
-      <div className={cn('relative w-full bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden z-10', maxWidth)}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
+      <div className="fixed inset-0 bg-black/60 transition-opacity" onClick={onClose} />
+      <div className={cn('relative w-full bg-white border border-zinc-300 rounded shadow-xl overflow-hidden z-10', maxWidth)}>
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-zinc-200 bg-zinc-50">
           <div>
-            <h3 className="text-lg font-bold text-slate-100">{title}</h3>
-            {description && <p className="text-xs text-slate-400 mt-0.5">{description}</p>}
+            <h3 className="text-sm font-bold text-zinc-950 tracking-tight">{title}</h3>
+            {description && <p className="text-xs text-zinc-500 mt-0.5">{description}</p>}
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 rounded-lg p-1.5 hover:bg-slate-800 transition"
+            className="text-zinc-400 hover:text-zinc-700 text-sm font-semibold p-1 transition"
           >
             ✕
           </button>
         </div>
-        <div className="p-6 max-h-[80vh] overflow-y-auto">{children}</div>
+        <div className="p-5 max-h-[80vh] overflow-y-auto">{children}</div>
       </div>
     </div>
   );
 };
 
+/* ── Skeleton ── */
 export const Skeleton: React.FC<{ className?: string }> = ({ className }) => {
-  return <div className={cn('animate-pulse bg-slate-800/60 rounded-md', className)} />;
+  return <div className={cn('animate-pulse bg-zinc-100 rounded', className)} />;
 };

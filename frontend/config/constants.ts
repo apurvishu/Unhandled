@@ -20,6 +20,9 @@ export const COMMODITIES: CommodityType[] = [
   'Alumina',
 ];
 
+export const COMMODITY_TYPES = COMMODITIES;
+
+
 export const VESSEL_TYPES: VesselType[] = [
   'Capesize',
   'Panamax',

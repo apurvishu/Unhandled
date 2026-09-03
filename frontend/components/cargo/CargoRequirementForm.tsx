@@ -1,32 +1,14 @@
 'use client';
 
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { CommodityType, VesselType } from '@/types';
-import { COMMODITIES, MAJOR_PORTS, VESSEL_TYPES } from '@/config/constants';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input, Select } from '@/components/ui/Input';
-import { Sparkles, Calendar, Ship, MapPin, Layers } from 'lucide-react';
+import { COMMODITY_TYPES, VESSEL_TYPES } from '@/config/constants';
+import { CommodityType, VesselType } from '@/types';
+import { ArrowRight, Sparkles } from 'lucide-react';
 
-const cargoSchema = z.object({
-  commodity: z.string().min(1, 'Commodity is required'),
-  quantityMt: z.number().min(1000, 'Minimum 1,000 MT').max(400000, 'Maximum 400,000 MT'),
-  originPortId: z.string().min(1, 'Origin port is required'),
-  destinationPortId: z.string().min(1, 'Destination port is required'),
-  requiredArrivalDate: z.string().min(1, 'Required arrival date is required'),
-  preferredVesselType: z.string().min(1, 'Vessel type is required'),
-  minDwt: z.number().min(1000, 'Invalid Min DWT'),
-  maxDraft: z.number().min(5, 'Draft must be at least 5m').max(25, 'Max draft is 25m'),
-  laycanStart: z.string().min(1, 'Laycan start date is required'),
-  laycanEnd: z.string().min(1, 'Laycan end date is required'),
-});
-
-export type CargoFormData = z.infer<typeof cargoSchema>;
-
-export interface CargoRequirementFormProps {
-  onSubmit: (data: CargoFormData) => Promise<void>;
+interface CargoRequirementFormProps {
+  onSubmit: (data: any) => void;
   isLoading?: boolean;
 }
 
@@ -34,159 +16,160 @@ export const CargoRequirementForm: React.FC<CargoRequirementFormProps> = ({
   onSubmit,
   isLoading = false,
 }) => {
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<CargoFormData>({
-    resolver: zodResolver(cargoSchema),
-    defaultValues: {
-      commodity: 'Coking Coal',
-      quantityMt: 75000,
-      originPortId: 'port-haypoint',
-      destinationPortId: 'port-paradip',
-      requiredArrivalDate: '2026-09-18',
-      preferredVesselType: 'Panamax',
-      minDwt: 75000,
-      maxDraft: 14.5,
-      laycanStart: '2026-09-01',
-      laycanEnd: '2026-09-06',
-    },
-  });
+  const [commodity, setCommodity] = useState<CommodityType>('Coking Coal');
+  const [quantityMt, setQuantityMt] = useState<number>(75000);
+  const [originPort, setOriginPort] = useState('Hay Point, Australia');
+  const [destinationPort, setDestinationPort] = useState('Paradip Port, India');
+  const [laycanStart, setLaycanStart] = useState('2026-09-15');
+  const [laycanEnd, setLaycanEnd] = useState('2026-09-22');
+  const [targetRate, setTargetRate] = useState<number>(24.5);
+  const [preferredVesselType, setPreferredVesselType] = useState<VesselType>('Panamax');
 
-  const selectedCommodity = watch('commodity');
-  const selectedQuantity = watch('quantityMt');
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit({
+      commodity,
+      quantityMt,
+      originPortName: originPort,
+      destinationPortName: destinationPort,
+      laycanStart,
+      laycanEnd,
+      targetFreightRateUsdPerMt: targetRate,
+      preferredVesselType,
+    });
+  };
 
-  // Quick preset loader
-  const loadPreset = (commodity: CommodityType, qty: number, origin: string, dest: string, vessel: VesselType) => {
-    setValue('commodity', commodity);
-    setValue('quantityMt', qty);
-    setValue('originPortId', origin);
-    setValue('destinationPortId', dest);
-    setValue('preferredVesselType', vessel);
-    setValue('minDwt', qty);
-    setValue('maxDraft', vessel === 'Capesize' ? 18.0 : vessel === 'Panamax' ? 14.5 : 12.5);
+  const handleQuickPreset = (presetType: 'coal' | 'iron_ore' | 'grain') => {
+    if (presetType === 'coal') {
+      setCommodity('Coking Coal');
+      setQuantityMt(75000);
+      setOriginPort('Hay Point, Australia');
+      setDestinationPort('Paradip Port, India');
+      setTargetRate(24.5);
+      setPreferredVesselType('Panamax');
+    } else if (presetType === 'iron_ore') {
+      setCommodity('Iron Ore');
+      setQuantityMt(160000);
+      setOriginPort('Port Hedland, Australia');
+      setDestinationPort('Visakhapatnam, India');
+      setTargetRate(18.2);
+      setPreferredVesselType('Capesize');
+    } else if (presetType === 'grain') {
+      setCommodity('Grain / Wheat');
+      setQuantityMt(55000);
+      setOriginPort('Santos, Brazil');
+      setDestinationPort('Haldia, India');
+
+      setTargetRate(38.0);
+      setPreferredVesselType('Supramax');
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Quick Presets for Demo */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between flex-wrap gap-2">
-        <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-          <Sparkles className="h-3.5 w-3.5 text-sky-400" />
-          Quick Test Presets:
-        </span>
-        <div className="flex items-center gap-2 flex-wrap">
-          <button
+    <form onSubmit={handleSubmit} className="bg-white border border-zinc-200 rounded p-6 shadow-sm space-y-6">
+      {/* Quick Presets */}
+      <div className="flex items-center justify-between pb-4 border-b border-zinc-100 flex-wrap gap-2">
+        <div className="text-xs font-bold uppercase tracking-wider text-zinc-500 font-mono">
+          Quick Cargo Presets
+        </div>
+        <div className="flex items-center gap-1.5">
+          <Button
             type="button"
-            onClick={() => loadPreset('Coking Coal', 75000, 'port-haypoint', 'port-paradip', 'Panamax')}
-            className="px-2.5 py-1 text-xs rounded-lg bg-sky-950/40 text-sky-300 border border-sky-500/30 hover:bg-sky-900/40 transition"
+            variant="outline"
+            size="sm"
+            onClick={() => handleQuickPreset('coal')}
           >
-            Coal 75k MT (AU → Paradip)
-          </button>
-          <button
+            75k MT Coal (Australia → Paradip)
+          </Button>
+          <Button
             type="button"
-            onClick={() => loadPreset('Iron Ore', 120000, 'port-hedland', 'port-dhamra', 'Capesize')}
-            className="px-2.5 py-1 text-xs rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition"
+            variant="outline"
+            size="sm"
+            onClick={() => handleQuickPreset('iron_ore')}
           >
-            Iron Ore 120k MT (AU → Dhamra)
-          </button>
+            160k MT Ore (Hedland → Vizag)
+          </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* Commodity & Quantity */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Select
           label="Bulk Commodity"
-          {...register('commodity')}
-          error={errors.commodity?.message}
-          options={COMMODITIES.map((c) => ({ value: c, label: c }))}
+          value={commodity}
+          onChange={(e) => setCommodity(e.target.value as CommodityType)}
+          options={COMMODITY_TYPES.map((c) => ({ value: c, label: c }))}
         />
 
         <Input
-          label="Quantity (Metric Tons - MT)"
+          label="Quantity (Metric Tons)"
           type="number"
-          step={1000}
-          {...register('quantityMt', { valueAsNumber: true })}
-          error={errors.quantityMt?.message}
-          helperText="e.g. 75,000 MT for standard Panamax bulk shipment"
-        />
-
-        {/* Origin & Destination Ports */}
-        <Select
-          label="Origin Port / Loading Terminal"
-          {...register('originPortId')}
-          error={errors.originPortId?.message}
-          options={MAJOR_PORTS.map((p) => ({
-            value: p.id,
-            label: `${p.name} (${p.country}) - Max Depth: ${p.maxDepth}m`,
-          }))}
-        />
-
-        <Select
-          label="Destination Port / Discharge Terminal"
-          {...register('destinationPortId')}
-          error={errors.destinationPortId?.message}
-          options={MAJOR_PORTS.map((p) => ({
-            value: p.id,
-            label: `${p.name} (${p.country}) - Max Depth: ${p.maxDepth}m`,
-          }))}
-        />
-
-        {/* Preferred Vessel Type & Min DWT */}
-        <Select
-          label="Preferred Vessel Class"
-          {...register('preferredVesselType')}
-          error={errors.preferredVesselType?.message}
-          options={VESSEL_TYPES.map((v) => ({ value: v, label: v }))}
-        />
-
-        <Input
-          label="Minimum Deadweight Tonnage (DWT)"
-          type="number"
-          {...register('minDwt', { valueAsNumber: true })}
-          error={errors.minDwt?.message}
-        />
-
-        {/* Max Draft & Required Arrival Date */}
-        <Input
-          label="Maximum Allowable Draft (Meters)"
-          type="number"
-          step={0.1}
-          {...register('maxDraft', { valueAsNumber: true })}
-          error={errors.maxDraft?.message}
-          helperText="Discharge channel safety limit"
-        />
-
-        <Input
-          label="Required Arrival Date"
-          type="date"
-          {...register('requiredArrivalDate')}
-          error={errors.requiredArrivalDate?.message}
-        />
-
-        {/* Laycan Window */}
-        <Input
-          label="Laycan Window: Earliest Start Date"
-          type="date"
-          {...register('laycanStart')}
-          error={errors.laycanStart?.message}
-        />
-
-        <Input
-          label="Laycan Window: Latest Cancel Date"
-          type="date"
-          {...register('laycanEnd')}
-          error={errors.laycanEnd?.message}
+          step="1000"
+          value={quantityMt}
+          onChange={(e) => setQuantityMt(Number(e.target.value))}
+          required
         />
       </div>
 
-      <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
-        <Button type="submit" variant="primary" size="lg" isLoading={isLoading}>
-          <Sparkles className="h-4 w-4" />
-          <span>Save & Find Suitable Vessels</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Input
+          label="Origin / Loading Terminal"
+          value={originPort}
+          onChange={(e) => setOriginPort(e.target.value)}
+          required
+        />
+
+        <Input
+          label="Discharge Port"
+          value={destinationPort}
+          onChange={(e) => setDestinationPort(e.target.value)}
+          required
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Input
+          label="Laycan Window Start"
+          type="date"
+          value={laycanStart}
+          onChange={(e) => setLaycanStart(e.target.value)}
+          required
+        />
+
+        <Input
+          label="Laycan Window End"
+          type="date"
+          value={laycanEnd}
+          onChange={(e) => setLaycanEnd(e.target.value)}
+          required
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Input
+          label="Target Freight Budget ($/MT)"
+          type="number"
+          step="0.1"
+          value={targetRate}
+          onChange={(e) => setTargetRate(Number(e.target.value))}
+          required
+        />
+
+        <Select
+          label="Preferred Vessel Class"
+          value={preferredVesselType}
+          onChange={(e) => setPreferredVesselType(e.target.value as VesselType)}
+          options={VESSEL_TYPES.map((t) => ({ value: t, label: t }))}
+        />
+      </div>
+
+      <div className="pt-4 border-t border-zinc-200 flex items-center justify-between">
+        <span className="text-xs text-zinc-500 font-mono">
+          Est. Total Cargo Outlay: <strong className="text-zinc-950">${(quantityMt * targetRate).toLocaleString()}</strong>
+        </span>
+
+        <Button type="submit" variant="primary" size="md" isLoading={isLoading}>
+          <span>Run AI Optimization Match</span>
+          <ArrowRight className="h-3.5 w-3.5" />
         </Button>
       </div>
     </form>

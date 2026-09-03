@@ -1,46 +1,31 @@
 import React from 'react';
-import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/Card';
 
 export interface PageHeaderProps {
   title: string;
   description?: string;
   badge?: string;
-  badgeVariant?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'purple';
-  children?: React.ReactNode; // Action buttons
-  className?: string;
+  badgeVariant?: 'default' | 'success' | 'warning' | 'danger' | 'accent' | 'outline';
+  children?: React.ReactNode;
 }
 
 export const PageHeader: React.FC<PageHeaderProps> = ({
   title,
   description,
   badge,
-  badgeVariant = 'info',
+  badgeVariant = 'default',
   children,
-  className,
 }) => {
   return (
-    <div className={cn('flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/80 mb-6', className)}>
-      <div>
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">{title}</h1>
-          {badge && (
-            <span
-              className={cn(
-                'text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border',
-                badgeVariant === 'info' && 'bg-sky-500/10 text-sky-400 border-sky-500/30',
-                badgeVariant === 'success' && 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-                badgeVariant === 'warning' && 'bg-amber-500/10 text-amber-400 border-amber-500/30',
-                badgeVariant === 'purple' && 'bg-purple-500/10 text-purple-400 border-purple-500/30',
-                badgeVariant === 'danger' && 'bg-rose-500/10 text-rose-400 border-rose-500/30'
-              )}
-            >
-              {badge}
-            </span>
-          )}
+    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-zinc-200">
+      <div className="space-y-1">
+        <div className="flex items-center gap-2.5">
+          <h1 className="text-xl font-bold text-zinc-950 tracking-tight leading-tight">{title}</h1>
+          {badge && <Badge variant={badgeVariant}>{badge}</Badge>}
         </div>
-        {description && <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-3xl">{description}</p>}
+        {description && <p className="text-xs text-zinc-500 max-w-3xl leading-relaxed">{description}</p>}
       </div>
-      {children && <div className="flex items-center gap-2.5 shrink-0 flex-wrap">{children}</div>}
+      {children && <div className="flex items-center gap-2 shrink-0">{children}</div>}
     </div>
   );
 };

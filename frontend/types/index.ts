@@ -126,9 +126,49 @@ export interface CargoRequirement {
   maxDraft: number;
   laycanStart: string;
   laycanEnd: string;
+  targetFreightRateUsdPerMt?: number;
   status: 'OPEN' | 'MATCHING' | 'OFFERS_RECEIVED' | 'CHARTERED' | 'CANCELLED';
   createdAt: string;
 }
+
+export interface ProcurementKpis {
+  activeCargoRequirements: number;
+  matchedVesselsAvailable: number;
+  currentMarketSpotRateUsdPerMt: number;
+  projectedSavingsUsd: number;
+  averageLaycanWindowDays: number;
+  totalVolumeUnderTenderMt: number;
+}
+
+export interface OptimizationRecommendation {
+  cargoRequirementId: string;
+  recommendationType: 'WAIT_TO_CHARTER' | 'BOOK_IMMEDIATELY';
+  optimalCharterWindowStart: string;
+  optimalCharterWindowEnd: string;
+  confidenceScorePercent: number;
+  bestVesselMatch: VesselMatch;
+  freightForecastSummary: {
+    currentRateUsdPerMt: number;
+    forecastedRateUsdPerMt: number;
+    expectedDeclineUsdPerMt: number;
+    percentageDecline: number;
+    forecastHorizonDays: number;
+  };
+  costSummary: {
+    freightRateUsdPerMt: number;
+    cargoQuantityMt: number;
+    baseFreightCostUsd: number;
+    bunkerFuelCostUsd: number;
+    portDuesAndHandlingUsd: number;
+    canalAndTollsUsd: number;
+    demurrageRiskCostUsd: number;
+    totalOutlayUsd: number;
+    potentialSavingsUsd: number;
+  };
+  rationale: string[];
+  targetPortBathymetryStatus: string;
+}
+
 
 // ML Freight Rate Forecast
 export interface ForecastDataPoint {

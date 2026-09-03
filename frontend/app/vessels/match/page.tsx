@@ -10,14 +10,7 @@ import { DecisionRecommendation } from '@/components/dashboard/DecisionRecommend
 import { AisVesselMap } from '@/components/maps/AisVesselMap';
 import { Button } from '@/components/ui/Button';
 import { matchVessels, getOptimizationRecommendation } from '@/services/optimization';
-import { VesselMatch } from '@/types';
-import { 
-  Sparkles, 
-  ArrowLeft, 
-  Scale, 
-  SlidersHorizontal, 
-  Ship 
-} from 'lucide-react';
+import { ArrowLeft, Scale, SlidersHorizontal, Ship } from 'lucide-react';
 
 function VesselMatchContent() {
   const router = useRouter();
@@ -26,19 +19,16 @@ function VesselMatchContent() {
 
   const [sortBy, setSortBy] = useState<'score' | 'freight' | 'eta' | 'distance'>('score');
 
-  // Fetch vessel matches from backend / demo
-  const { data: matches = [], isLoading } = useQuery({
+  const { data: matches = [] } = useQuery({
     queryKey: ['vesselMatches', cargoId],
     queryFn: () => matchVessels(cargoId),
   });
 
-  // Fetch AI recommendation
   const { data: optimizationData } = useQuery({
     queryKey: ['optimizationRecommendation', cargoId],
     queryFn: () => getOptimizationRecommendation(cargoId),
   });
 
-  // Sort matches
   const sortedMatches = [...matches].sort((a, b) => {
     if (sortBy === 'score') return b.matchScorePercent - a.matchScorePercent;
     if (sortBy === 'freight') return a.freightRateUsdPerMt - b.freightRateUsdPerMt;
@@ -47,10 +37,10 @@ function VesselMatchContent() {
   });
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
+    <div className="space-y-8">
       <div className="flex items-center gap-2">
         <Link href="/cargo">
-          <Button variant="ghost" size="sm" className="text-slate-400">
+          <Button variant="ghost" size="sm" className="text-zinc-500">
             <ArrowLeft className="h-4 w-4" />
             <span>Back to Cargo Requirements</span>
           </Button>
@@ -61,7 +51,7 @@ function VesselMatchContent() {
         title="AI Vessel Matching & Fleet Optimization"
         description="Ranked vessel candidates evaluated against AIS ballast location, draft constraints, laycan window, and port bathymetry."
         badge="Multi-Objective Optimization"
-        badgeVariant="info"
+        badgeVariant="default"
       >
         <Link href="/charters/compare">
           <Button variant="secondary" size="md">
@@ -84,10 +74,10 @@ function VesselMatchContent() {
       )}
 
       {/* SORTING & FILTER BAR */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/60 border border-slate-800 p-4 rounded-xl">
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-          <SlidersHorizontal className="h-4 w-4 text-sky-400" />
-          <span>Sort Ranked Vessels by:</span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-zinc-200 p-4 rounded shadow-sm">
+        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-zinc-600 font-mono">
+          <SlidersHorizontal className="h-4 w-4 text-zinc-800" />
+          <span>Sort Candidates:</span>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
@@ -134,14 +124,14 @@ function VesselMatchContent() {
         ))}
       </div>
 
-      {/* LIVE AIS TRACKING POSITION MAP */}
+      {/* LIVE AIS TRACKING MAP */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-bold text-white flex items-center gap-2">
-            <Ship className="h-4 w-4 text-sky-400" />
+          <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-500 font-mono flex items-center gap-2">
+            <Ship className="h-4 w-4 text-zinc-800" />
             <span>Real-Time Ballast Locations & Navigational Corridor</span>
           </h3>
-          <span className="text-xs text-slate-400">Track vessel movements approaching loading terminal</span>
+          <span className="text-xs text-zinc-500">Track vessel movements approaching loading terminal</span>
         </div>
         <AisVesselMap height="440px" />
       </section>
@@ -151,7 +141,7 @@ function VesselMatchContent() {
 
 export default function VesselMatchingPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-slate-400">Loading AI vessel matches...</div>}>
+    <Suspense fallback={<div className="p-8 text-xs font-mono text-zinc-500">Loading AI vessel matches...</div>}>
       <VesselMatchContent />
     </Suspense>
   );
